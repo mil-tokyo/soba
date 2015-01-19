@@ -60,28 +60,29 @@ var Trinity = {};
 			var data = this.data;
 
 			// Determine the ranges
+			var x_range_init = this.x_range, y_range_init = this.y_range;
 			var x_range = null, y_range = null;
 			data.forEach(function(d){
 				var x = d.data[0], y = d.data[1];
 				if (x_range) {
-					if (this.x_range) {
-						x_range = [this.x_range[0]!==null ? this.x_range[0] : Math.min(x_range[0],$M.min(x)), this.x_range[1]!==null ? this.x_range[1] : Math.max(x_range[1],$M.max(x))];
+					if (x_range_init) {
+						x_range = [x_range_init[0]!==null ? x_range_init[0] : Math.min(x_range[0],$M.min(x)), x_range_init[1]!==null ? x_range_init[1] : Math.max(x_range[1],$M.max(x))];
 					} else {
 						x_range = [Math.min(x_range[0],$M.min(x)), Math.max(x_range[1],$M.max(x))];
 					}
-					if (this.y_range) {
-						y_range = [this.y_range[1]!==null ? this.y_range[1] : Math.max(y_range[0],$M.max(y)), this.y_range[0]!==null ? this.y_range[0] : Math.min(y_range[1],$M.min(y))];
+					if (y_range_init) {
+						y_range = [y_range_init[1]!==null ? y_range_init[1] : Math.max(y_range[0],$M.max(y)), y_range_init[0]!==null ? y_range_init[0] : Math.min(y_range[1],$M.min(y))];
 					} else {
 						y_range = [Math.max(y_range[0],$M.max(y)), Math.min(y_range[1],$M.min(y))];
 					}
 				} else {
-					if (this.x_range) {
-						x_range = [this.x_range[0]!==null ? this.x_range[0] : $M.min(x), this.x_range[1]!==null ? this.x_range[1] : $M.max(x)];
+					if (x_range_init) {
+						x_range = [x_range_init[0]!==null ? x_range_init[0] : $M.min(x), x_range_init[1]!==null ? x_range_init[1] : $M.max(x)];
 					} else {
 						x_range = [$M.min(x), $M.max(x)];
 					}
-					if (this.y_range) {
-						y_range = [this.y_range[1]!==null ? this.y_range[1] : $M.max(y), this.y_range[0]!==null ? this.y_range[0] : $M.min(y)];
+					if (y_range_init) {
+						y_range = [y_range_init[1]!==null ? y_range_init[1] : $M.max(y), y_range_init[0]!==null ? y_range_init[0] : $M.min(y)];
 					} else {
 						y_range = [$M.max(y), $M.min(y)];
 					}
