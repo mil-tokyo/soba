@@ -1,0 +1,22 @@
+.trinity_modal .plotarea {
+	background-color: white;
+}
+
+.trinity_modal {
+	border : 1px solid #aaa;
+	position : absolute;
+	z-index : 9999;
+}
+
+.trinity_modal .title {
+	background-color : #fdc;
+	position : relative;
+	cursor : move;
+}
+
+.trinity_modal .close {
+	cursor : pointer;
+	right : 0;
+	margin : 0;
+	position : absolute;
+}
