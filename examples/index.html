@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Trinity - A visualization tool for agent_smith.js</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width">
+		<script src="../agent_smith/src/agent_smith.js"></script>
+		<script src="../agent_smith/src/agent_smith_cl.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<script src="../src/trinity.js"></script>
+		<link rel="stylesheet" href="../src/trinity.css">
+		<style>
+			#sine-curves {
+				width: 640px;
+				height: 480px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div>
+			<div id="sine-curves"></div>
+		</div>
+		<script>
+			$M = AgentSmith.Matrix;
+			
+			// Sine data
+			var x = new $M(60, 1);
+			x.setEach(function(i){
+			    return -3 + i*0.1;
+			});
+			var y = x.clone();
+			y.map(function(d){
+			    return Math.sin(d);
+			});
+			
+			// plot
+			var plt = new Trinity('#sine-curves');
+
+			var options = ['r-', 'b-.', 'k:', 'g--', 'co', 'mo-'];
+
+			for (var i=0 ; i<6 ; i++) {
+			    plt.plot(x,y,options[i]);
+			    x.map(function(d){ return d+0.5; });
+			}
+			plt.show();
+			
+			// create modal and plot
+			var plt_modal = Trinity.createModalPlot(640, 480, 'Sine curves');
+
+			var options = ['r-', 'b-.', 'k:', 'g--', 'co', 'mo-'];
+
+			for (var i=0 ; i<6 ; i++) {
+			    plt_modal.plot(x,y,options[i]);
+			    x.map(function(d){ return d+0.5; });
+			}
+			plt_modal.show();
+		</script>
+	</body>
+</html>
