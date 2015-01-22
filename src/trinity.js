@@ -31,6 +31,8 @@ var Trinity = {};
 		plot: function(x, y, option) {
 			this.data.push({
 				data: [x.clone(),y.clone(),option],
+				x_range: [$M.min(x), $M.max(x)],
+				y_range: [$M.min(y), $M.max(y)],
 				show: this._show_plot
 			})
 		},
@@ -38,6 +40,8 @@ var Trinity = {};
 		scatter: function(x, y, color) {
 			this.data.push({
 				data: [x.clone(), y.clone(), color],
+				x_range: [$M.min(x), $M.max(x)],
+				y_range: [$M.min(y), $M.max(y)],
 				show: this._show_scatter
 			})
 		},
@@ -62,32 +66,33 @@ var Trinity = {};
 			// Determine the ranges
 			var x_range_init = this.x_range, y_range_init = this.y_range;
 			var x_range = null, y_range = null;
-			data.forEach(function(d){
-				var x = d.data[0], y = d.data[1];
-				if (x_range) {
-					if (x_range_init) {
-						x_range = [x_range_init[0]!==null ? x_range_init[0] : Math.min(x_range[0],$M.min(x)), x_range_init[1]!==null ? x_range_init[1] : Math.max(x_range[1],$M.max(x))];
+			data.forEach(function(d) {
+				if (d.x_range) {
+					if (x_range) {
+						if (!x_range_init || x_range_init[0]===null) x_range[0] = Math.min(x_range[0], d.x_range[0]);
+						if (!x_range_init || x_range_init[1]===null) x_range[1] = Math.max(x_range[1], d.x_range[1]);
 					} else {
-						x_range = [Math.min(x_range[0],$M.min(x)), Math.max(x_range[1],$M.max(x))];
+						if (x_range_init) {
+							x_range = [x_range_init[0]!==null ? x_range_init[0] : d.x_range[0], x_range_init[1]!==null ? x_range_init[1] : d.x_range[1]];
+						} else {
+							x_range = d.x_range;
+						}
 					}
-					if (y_range_init) {
-						y_range = [y_range_init[1]!==null ? y_range_init[1] : Math.max(y_range[0],$M.max(y)), y_range_init[0]!==null ? y_range_init[0] : Math.min(y_range[1],$M.min(y))];
+				}
+				if (d.y_range) {
+					if (y_range) {
+						if (!y_range_init || y_range_init[0]===null) y_range[0] = Math.min(y_range[0], d.y_range[0]);
+						if (!y_range_init || y_range_init[1]===null) y_range[1] = Math.max(y_range[1], d.y_range[1]);
 					} else {
-						y_range = [Math.max(y_range[0],$M.max(y)), Math.min(y_range[1],$M.min(y))];
-					}
-				} else {
-					if (x_range_init) {
-						x_range = [x_range_init[0]!==null ? x_range_init[0] : $M.min(x), x_range_init[1]!==null ? x_range_init[1] : $M.max(x)];
-					} else {
-						x_range = [$M.min(x), $M.max(x)];
-					}
-					if (y_range_init) {
-						y_range = [y_range_init[1]!==null ? y_range_init[1] : $M.max(y), y_range_init[0]!==null ? y_range_init[0] : $M.min(y)];
-					} else {
-						y_range = [$M.max(y), $M.min(y)];
+						if (y_range_init) {
+							y_range = [y_range_init[0]!==null ? y_range_init[0] : d.y_range[0], y_range_init[1]!==null ? y_range_init[1] : d.y_range[1]];
+						} else {
+							y_range = d.y_range;
+						}
 					}
 				}
 			});
+			y_range[1] = [y_range[0], y_range[0] = y_range[1]][0]; // Swap
 
 			var xScale = d3.scale.linear()
 				.domain(x_range)
