@@ -31,6 +31,8 @@ var Trinity = {};
 		plot: function(x, y, option) {
 			this.data.push({
 				data: [x.clone(),y.clone(),option],
+				x_range: [$M.min(x), $M.max(x)],
+				y_range: [$M.min(y), $M.max(y)],
 				show: this._show_plot
 			})
 		},
@@ -38,8 +40,27 @@ var Trinity = {};
 		scatter: function(x, y, color) {
 			this.data.push({
 				data: [x.clone(), y.clone(), color],
+				x_range: [$M.min(x), $M.max(x)],
+				y_range: [$M.min(y), $M.max(y)],
 				show: this._show_scatter
 			})
+		},
+
+		contourDesicionFunction: function(x_min, x_max, y_min, y_max, func, func_){
+			var decision_func;
+			if (typeof func === 'function') {
+				decision_func = func;
+				args = {};
+			} else {
+				decision_func = func_;
+				args = func;
+			}
+			this.data.push({
+				data: [x_min, x_max, y_min, y_max, decision_func, args],
+				x_range: [x_min, x_max],
+				y_range: [y_min, y_max],
+				show: this._show_contourDecisionFunction
+			});
 		},
 
 		xlim: function(x_range) {
@@ -62,32 +83,33 @@ var Trinity = {};
 			// Determine the ranges
 			var x_range_init = this.x_range, y_range_init = this.y_range;
 			var x_range = null, y_range = null;
-			data.forEach(function(d){
-				var x = d.data[0], y = d.data[1];
-				if (x_range) {
-					if (x_range_init) {
-						x_range = [x_range_init[0]!==null ? x_range_init[0] : Math.min(x_range[0],$M.min(x)), x_range_init[1]!==null ? x_range_init[1] : Math.max(x_range[1],$M.max(x))];
+			data.forEach(function(d) {
+				if (d.x_range) {
+					if (x_range) {
+						if (!x_range_init || x_range_init[0]===null) x_range[0] = Math.min(x_range[0], d.x_range[0]);
+						if (!x_range_init || x_range_init[1]===null) x_range[1] = Math.max(x_range[1], d.x_range[1]);
 					} else {
-						x_range = [Math.min(x_range[0],$M.min(x)), Math.max(x_range[1],$M.max(x))];
+						if (x_range_init) {
+							x_range = [x_range_init[0]!==null ? x_range_init[0] : d.x_range[0], x_range_init[1]!==null ? x_range_init[1] : d.x_range[1]];
+						} else {
+							x_range = d.x_range;
+						}
 					}
-					if (y_range_init) {
-						y_range = [y_range_init[1]!==null ? y_range_init[1] : Math.max(y_range[0],$M.max(y)), y_range_init[0]!==null ? y_range_init[0] : Math.min(y_range[1],$M.min(y))];
+				}
+				if (d.y_range) {
+					if (y_range) {
+						if (!y_range_init || y_range_init[0]===null) y_range[0] = Math.min(y_range[0], d.y_range[0]);
+						if (!y_range_init || y_range_init[1]===null) y_range[1] = Math.max(y_range[1], d.y_range[1]);
 					} else {
-						y_range = [Math.max(y_range[0],$M.max(y)), Math.min(y_range[1],$M.min(y))];
-					}
-				} else {
-					if (x_range_init) {
-						x_range = [x_range_init[0]!==null ? x_range_init[0] : $M.min(x), x_range_init[1]!==null ? x_range_init[1] : $M.max(x)];
-					} else {
-						x_range = [$M.min(x), $M.max(x)];
-					}
-					if (y_range_init) {
-						y_range = [y_range_init[1]!==null ? y_range_init[1] : $M.max(y), y_range_init[0]!==null ? y_range_init[0] : $M.min(y)];
-					} else {
-						y_range = [$M.max(y), $M.min(y)];
+						if (y_range_init) {
+							y_range = [y_range_init[0]!==null ? y_range_init[0] : d.y_range[0], y_range_init[1]!==null ? y_range_init[1] : d.y_range[1]];
+						} else {
+							y_range = d.y_range;
+						}
 					}
 				}
 			});
+			y_range[1] = [y_range[0], y_range[0] = y_range[1]][0]; // Swap
 
 			var xScale = d3.scale.linear()
 				.domain(x_range)
@@ -173,6 +195,105 @@ var Trinity = {};
 					return color instanceof $M ? color_list(color.get(i,0)) : color_list(1);
 				})
 				.attr('r', 2);
+		},
+
+		_show_contourDecisionFunction: function(data, xScale, yScale){
+			var x_min = data[0], x_max = data[1], y_min = data[2], y_max = data[3], decisionFunction = data[4], args = data[5];
+			var x_bins = 100, y_bins = 100;
+			var mesh = new Array(x_bins);
+			var mesh_min = null, mesh_max = null;
+			for (var ix=0 ; ix<x_bins ; ix++) {
+				mesh[ix] = new Array(y_bins);
+				for (var iy=0 ; iy<y_bins ; iy++) {
+					var x = x_min + (x_max-x_min)*ix/x_bins;
+					var y = y_min + (y_max-y_min)*iy/y_bins;
+					var val = decisionFunction(x, y);
+					mesh[ix][iy] = val;
+					if (mesh_max===null || mesh_max < val) mesh_max = val;
+					if (mesh_min===null || mesh_min > val) mesh_min = val;
+				}
+			}
+
+			// Determine levels
+			var levels;
+			if (args.levels) {
+				levels = args.levels;
+			} else {
+				var n_levels = 10;
+				var levels = new Array(n_levels);
+				for (var i=0 ; i<n_levels ; i++) {
+					levels[i] = mesh_min + (mesh_max-mesh_min)*i/(n_levels-1);
+				}
+				/*
+				var levels = [];
+				for (var i=Math.ceil(mesh_min) ; i<=Math.floor(mesh_max) ; i++) {
+					levels.push(i);
+				}
+				*/
+			}
+
+			// Colors
+			var domain = new Array(6);
+			for (var i=0 ; i<6 ; i++) {
+				domain[i] = mesh_min + (mesh_max-mesh_min)*i/6;
+			}
+			var color = d3.scale.linear()
+			.domain(domain)
+			.range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
+
+			function index2location(_ix, _iy) {
+				return [x_min + (x_max-x_min)*_ix/x_bins, y_min+(y_max-y_min)*_iy/y_bins];
+			}
+
+			var level = 0; // tmp
+			var svg = this.svg;
+			levels.forEach(function(level){
+				var level_color = color(level);
+				// Scan and draw lines
+				for (var ix=0 ; ix<x_bins-1 ; ix++) {
+					for (var iy=0 ; iy<y_bins-1 ; iy++) {
+						var points = [];
+						for (var k=0 ; k<4 ; k++) {
+							var p0, p1;
+							switch (k) {
+								case 0: // Top
+								p0 = index2location(ix, iy);   p0.push(mesh[ix][iy]);   p1 = index2location(ix+1,iy); p1.push(mesh[ix+1][iy]); break;
+								case 1: // Left
+								p0 = index2location(ix, iy);   p0.push(mesh[ix][iy]);   p1 = index2location(ix,iy+1); p1.push(mesh[ix][iy+1]); break;
+								case 2: // Right
+								p0 = index2location(ix+1, iy); p0.push(mesh[ix+1][iy]); p1 = index2location(ix+1,iy+1); p1.push(mesh[ix+1][iy+1]); break;
+								case 3: // Bottom
+								p0 = index2location(ix, iy+1); p0.push(mesh[ix][iy+1]); p1 = index2location(ix+1,iy+1); p1.push(mesh[ix+1][iy+1]); break;
+							}
+							if ((p0[2]-level) * (p1[2]-level) < 0) {
+								var offset = (level-p0[2])/(p1[2]-p0[2]);
+								var x = p0[0] + (p1[0]-p0[0])*offset;
+								var y = p0[1] + (p1[1]-p0[1])*offset;
+								points.push([x,y]);
+							}
+						}
+
+						if (points.length == 2) {
+							var line = d3.svg.line()
+							.x(function(d){
+								return xScale(d[0]);
+							})
+							.y(function(d){
+								return yScale(d[1]);
+							})
+							.interpolate('linear');
+
+							var path = svg.append('path')
+							.datum(points)
+							.attr('d', line)
+							.attr('fill', 'none')
+							.attr('stroke', level_color)
+							.attr('stroke-width', 2);
+						}
+					}
+				}
+
+			});
 		},
 
 		drawAxis: function(xScale, yScale) {
