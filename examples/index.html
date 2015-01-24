@@ -17,12 +17,17 @@
 				width: 640px;
 				height: 480px;
 			}
+			#gaussian {
+				width: 480px;
+				height: 480px;
+			}
 		</style>
 	</head>
 
 	<body>
 		<div>
 			<div id="sine-curves"></div>
+			<div id="gaussian"></div>
 		</div>
 		<script>
 			$M = AgentSmith.Matrix;
@@ -58,6 +63,14 @@
 			    x.map(function(d){ return d+0.5; });
 			}
 			plt_modal.show();
+
+			// Gaussian distribution
+			var plt_gaussian = new Trinity('#gaussian');
+			plt_gaussian.contourDesicionFunction(-3, 3, -3, 3, function(x,y){
+				var z = Math.exp(-(x*x+y*y)/2)/(2*Math.PI);
+				return z;
+			});
+			plt_gaussian.show();
 		</script>
 	</body>
 </html>

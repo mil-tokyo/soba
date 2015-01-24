@@ -207,10 +207,17 @@ var Trinity = {};
 			}
 
 			// Determine levels
-			levels = [];
+			var n_levels = 10;
+			var levels = new Array(n_levels);
+			for (var i=0 ; i<n_levels ; i++) {
+				levels[i] = mesh_min + (mesh_max-mesh_min)*i/(n_levels-1);
+			}
+			/*
+			var levels = [];
 			for (var i=Math.ceil(mesh_min) ; i<=Math.floor(mesh_max) ; i++) {
 				levels.push(i);
 			}
+			*/
 
 			// Colors
 			var domain = new Array(6);
@@ -218,7 +225,6 @@ var Trinity = {};
 				domain[i] = mesh_min + (mesh_max-mesh_min)*i/6;
 			}
 			var color = d3.scale.linear()
-			//.domain([95, 115, 135, 155, 175, 195])
 			.domain(domain)
 			.range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
 
