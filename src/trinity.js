@@ -201,57 +201,80 @@ var Trinity = {};
 					var y = y_min + (y_max-y_min)*iy/y_bins;
 					var val = decisionFunction(x, y);
 					mesh[ix][iy] = val;
+					if (mesh_max===null || mesh_max < val) mesh_max = val;
+					if (mesh_min===null || mesh_min > val) mesh_min = val;
 				}
 			}
-			var level = 0; // tmp
+
+			// Determine levels
+			levels = [];
+			for (var i=Math.ceil(mesh_min) ; i<=Math.floor(mesh_max) ; i++) {
+				levels.push(i);
+			}
+
+			// Colors
+			var domain = new Array(6);
+			for (var i=0 ; i<6 ; i++) {
+				domain[i] = mesh_min + (mesh_max-mesh_min)*i/6;
+			}
+			var color = d3.scale.linear()
+			//.domain([95, 115, 135, 155, 175, 195])
+			.domain(domain)
+			.range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
 
 			function index2location(_ix, _iy) {
 				return [x_min + (x_max-x_min)*_ix/x_bins, y_min+(y_max-y_min)*_iy/y_bins];
 			}
 
-			// Scan and draw lines
-			for (var ix=0 ; ix<x_bins-1 ; ix++) {
-				for (var iy=0 ; iy<y_bins-1 ; iy++) {
-					var points = [];
-					for (var k=0 ; k<4 ; k++) {
-						var p0, p1;
-						switch (k) {
-							case 0: // Top
-							p0 = index2location(ix, iy);   p0.push(mesh[ix][iy]);   p1 = index2location(ix+1,iy); p1.push(mesh[ix+1][iy]); break;
-							case 1: // Left
-							p0 = index2location(ix, iy);   p0.push(mesh[ix][iy]);   p1 = index2location(ix,iy+1); p1.push(mesh[ix][iy+1]); break;
-							case 2: // Right
-							p0 = index2location(ix+1, iy); p0.push(mesh[ix+1][iy]); p1 = index2location(ix+1,iy+1); p1.push(mesh[ix+1][iy+1]); break;
-							case 3: // Bottom
-							p0 = index2location(ix, iy+1); p0.push(mesh[ix][iy+1]); p1 = index2location(ix+1,iy+1); p1.push(mesh[ix+1][iy+1]); break;
+			var level = 0; // tmp
+			var svg = this.svg;
+			levels.forEach(function(level){
+				var level_color = color(level);
+				// Scan and draw lines
+				for (var ix=0 ; ix<x_bins-1 ; ix++) {
+					for (var iy=0 ; iy<y_bins-1 ; iy++) {
+						var points = [];
+						for (var k=0 ; k<4 ; k++) {
+							var p0, p1;
+							switch (k) {
+								case 0: // Top
+								p0 = index2location(ix, iy);   p0.push(mesh[ix][iy]);   p1 = index2location(ix+1,iy); p1.push(mesh[ix+1][iy]); break;
+								case 1: // Left
+								p0 = index2location(ix, iy);   p0.push(mesh[ix][iy]);   p1 = index2location(ix,iy+1); p1.push(mesh[ix][iy+1]); break;
+								case 2: // Right
+								p0 = index2location(ix+1, iy); p0.push(mesh[ix+1][iy]); p1 = index2location(ix+1,iy+1); p1.push(mesh[ix+1][iy+1]); break;
+								case 3: // Bottom
+								p0 = index2location(ix, iy+1); p0.push(mesh[ix][iy+1]); p1 = index2location(ix+1,iy+1); p1.push(mesh[ix+1][iy+1]); break;
+							}
+							if ((p0[2]-level) * (p1[2]-level) < 0) {
+								var offset = (level-p0[2])/(p1[2]-p0[2]);
+								var x = p0[0] + (p1[0]-p0[0])*offset;
+								var y = p0[1] + (p1[1]-p0[1])*offset;
+								points.push([x,y]);
+							}
 						}
-						if ((p0[2]-level) * (p1[2]-level) < 0) {
-							var offset = (level-p0[2])/(p1[2]-p0[2]);
-							var x = p0[0] + (p1[0]-p0[0])*offset;
-							var y = p0[1] + (p1[1]-p0[1])*offset;
-							points.push([x,y]);
+
+						if (points.length == 2) {
+							var line = d3.svg.line()
+							.x(function(d){
+								return xScale(d[0]);
+							})
+							.y(function(d){
+								return yScale(d[1]);
+							})
+							.interpolate('linear');
+
+							var path = svg.append('path')
+							.datum(points)
+							.attr('d', line)
+							.attr('fill', 'none')
+							.attr('stroke', level_color)
+							.attr('stroke-width', 2);
 						}
-					}
-
-					if (points.length == 2) {
-						var line = d3.svg.line()
-						.x(function(d){
-							return xScale(d[0]);
-						})
-						.y(function(d){
-							return yScale(d[1]);
-						})
-						.interpolate('linear');
-
-						var path = this.svg.append('path')
-						.datum(points)
-						.attr('d', line)
-						.attr('fill', 'none')
-						.attr('stroke', 'black')
-						.attr('stroke-width', 2);
 					}
 				}
-			}
+
+			});
 		},
 
 		drawAxis: function(xScale, yScale) {
