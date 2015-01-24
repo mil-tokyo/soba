@@ -201,9 +201,13 @@ var Trinity = {};
 			var x_min = data[0], x_max = data[1], y_min = data[2], y_max = data[3], decisionFunction = data[4], args = data[5];
 			var x_bins = 100, y_bins = 100;
 			var mesh = new Array(x_bins);
+			var xmap = new Array(x_bins);
+			var ymap = new Array(x_bins);
 			var mesh_min = null, mesh_max = null;
 			for (var ix=0 ; ix<x_bins ; ix++) {
 				mesh[ix] = new Array(y_bins);
+				xmap[ix] = new Array(y_bins);
+				ymap[ix] = new Array(y_bins);
 				for (var iy=0 ; iy<y_bins ; iy++) {
 					var x = x_min + (x_max-x_min)*ix/x_bins;
 					var y = y_min + (y_max-y_min)*iy/y_bins;
@@ -211,6 +215,8 @@ var Trinity = {};
 					mesh[ix][iy] = val;
 					if (mesh_max===null || mesh_max < val) mesh_max = val;
 					if (mesh_min===null || mesh_min > val) mesh_min = val;
+					xmap[ix][iy] = x;
+					ymap[ix][iy] = y;
 				}
 			}
 
@@ -241,37 +247,35 @@ var Trinity = {};
 			.domain(domain)
 			.range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
 
-			function index2location(_ix, _iy) {
-				return [x_min + (x_max-x_min)*_ix/x_bins, y_min+(y_max-y_min)*_iy/y_bins];
+			function findPathInGrid(edges, level) {
+				var points = [];
+				for (var i=0; i<edges.length; i++) {
+					var i2 = (i+1)%edges.length;
+					if ((edges[i][2]-level) * (edges[i2][2]-level) < 0) {
+						var offset = (level-edges[i][2])/(edges[i2][2]-edges[i][2]);
+						points.push([
+							edges[i][0] + (edges[i2][0]-edges[i][0])*offset,
+							edges[i][1] + (edges[i2][1]-edges[i][1])*offset
+						]);
+					}
+				}
+				return points;
 			}
 
 			var level = 0; // tmp
 			var svg = this.svg;
+			var edges = new Array(4);
 			levels.forEach(function(level){
 				var level_color = color(level);
 				// Scan and draw lines
 				for (var ix=0 ; ix<x_bins-1 ; ix++) {
 					for (var iy=0 ; iy<y_bins-1 ; iy++) {
-						var points = [];
-						for (var k=0 ; k<4 ; k++) {
-							var p0, p1;
-							switch (k) {
-								case 0: // Top
-								p0 = index2location(ix, iy);   p0.push(mesh[ix][iy]);   p1 = index2location(ix+1,iy); p1.push(mesh[ix+1][iy]); break;
-								case 1: // Left
-								p0 = index2location(ix, iy);   p0.push(mesh[ix][iy]);   p1 = index2location(ix,iy+1); p1.push(mesh[ix][iy+1]); break;
-								case 2: // Right
-								p0 = index2location(ix+1, iy); p0.push(mesh[ix+1][iy]); p1 = index2location(ix+1,iy+1); p1.push(mesh[ix+1][iy+1]); break;
-								case 3: // Bottom
-								p0 = index2location(ix, iy+1); p0.push(mesh[ix][iy+1]); p1 = index2location(ix+1,iy+1); p1.push(mesh[ix+1][iy+1]); break;
-							}
-							if ((p0[2]-level) * (p1[2]-level) < 0) {
-								var offset = (level-p0[2])/(p1[2]-p0[2]);
-								var x = p0[0] + (p1[0]-p0[0])*offset;
-								var y = p0[1] + (p1[1]-p0[1])*offset;
-								points.push([x,y]);
-							}
-						}
+						edges[0] = [xmap[ix  ][iy  ], ymap[ix  ][iy  ], mesh[ix  ][iy  ]];
+						edges[1] = [xmap[ix+1][iy  ], ymap[ix+1][iy  ], mesh[ix+1][iy  ]];
+						edges[2] = [xmap[ix+1][iy+1], ymap[ix+1][iy+1], mesh[ix+1][iy+1]];
+						edges[3] = [xmap[ix  ][iy+1], ymap[ix  ][iy+1], mesh[ix  ][iy+1]];
+
+						points = findPathInGrid(edges, level);
 
 						if (points.length == 2) {
 							var line = d3.svg.line()
