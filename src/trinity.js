@@ -46,9 +46,17 @@ var Trinity = {};
 			})
 		},
 
-		contourDesicionFunction: function(x_min, x_max, y_min, y_max, func){
+		contourDesicionFunction: function(x_min, x_max, y_min, y_max, func, func_){
+			var decision_func;
+			if (typeof func === 'function') {
+				decision_func = func;
+				args = {};
+			} else {
+				decision_func = func_;
+				args = func;
+			}
 			this.data.push({
-				data: [x_min, x_max, y_min, y_max, func],
+				data: [x_min, x_max, y_min, y_max, decision_func, args],
 				x_range: [x_min, x_max],
 				y_range: [y_min, y_max],
 				show: this._show_contourDecisionFunction
@@ -190,7 +198,7 @@ var Trinity = {};
 		},
 
 		_show_contourDecisionFunction: function(data, xScale, yScale){
-			var decisionFunction = data[4], x_min = data[0], x_max = data[1], y_min = data[2], y_max = data[3];
+			var x_min = data[0], x_max = data[1], y_min = data[2], y_max = data[3], decisionFunction = data[4], args = data[5];
 			var x_bins = 100, y_bins = 100;
 			var mesh = new Array(x_bins);
 			var mesh_min = null, mesh_max = null;
@@ -207,17 +215,22 @@ var Trinity = {};
 			}
 
 			// Determine levels
-			var n_levels = 10;
-			var levels = new Array(n_levels);
-			for (var i=0 ; i<n_levels ; i++) {
-				levels[i] = mesh_min + (mesh_max-mesh_min)*i/(n_levels-1);
+			var levels;
+			if (args.levels) {
+				levels = args.levels;
+			} else {
+				var n_levels = 10;
+				var levels = new Array(n_levels);
+				for (var i=0 ; i<n_levels ; i++) {
+					levels[i] = mesh_min + (mesh_max-mesh_min)*i/(n_levels-1);
+				}
+				/*
+				var levels = [];
+				for (var i=Math.ceil(mesh_min) ; i<=Math.floor(mesh_max) ; i++) {
+					levels.push(i);
+				}
+				*/
 			}
-			/*
-			var levels = [];
-			for (var i=Math.ceil(mesh_min) ; i<=Math.floor(mesh_max) ; i++) {
-				levels.push(i);
-			}
-			*/
 
 			// Colors
 			var domain = new Array(6);
