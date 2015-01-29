@@ -33,7 +33,8 @@ var Trinity = {};
 				data: [x.clone(),y.clone(),option],
 				x_range: [$M.min(x), $M.max(x)],
 				y_range: [$M.min(y), $M.max(y)],
-				show: this._show_plot
+				show: this._show_plot,
+				drawLegend: this._drawPlotLegend
 			})
 		},
 
@@ -75,6 +76,13 @@ var Trinity = {};
 				throw new TypeError('y_range must be an array and contain 2 elements');
 			}
 			this.y_range = y_range;
+		},
+
+		legend: function(titles, location) {
+			this.legend_settings = {
+				titles: titles,
+				location: location ? location : null
+			};
 		},
 
 		show: function() {
@@ -125,6 +133,9 @@ var Trinity = {};
 			});
 
 			this.drawAxis(xScale, yScale);
+			if (this.legend_settings) {
+				this._drawLegend(this.legend_settings);
+			}
 		},
 
 		_show_plot: function(data, xScale, yScale) {
@@ -132,7 +143,8 @@ var Trinity = {};
 			option = option ? option : '';
 			var xArray = $M.toArray(x);
 
-			if (option.indexOf('o') >= 0) {
+			style = this._parsePlotOption(option);
+			if (style.circle) {
 				this.svg.append('g').selectAll("circle")
 					.data(xArray)
 					.enter()
@@ -143,11 +155,10 @@ var Trinity = {};
 					.attr('cy', function(d, i){
 						return yScale(y.get(i,0));
 					})
-					.attr('fill', this.parseColor(option))
+					.attr('fill', style.circle.fill)
 					.attr('r', 2);
-
 			}
-			if (option.indexOf('-') >= 0 || option.indexOf(':') >= 0) {
+			if (style.line) {
 				var line = d3.svg.line()
 					.x(function(d, i){
 						return xScale(d);
@@ -160,18 +171,64 @@ var Trinity = {};
 				var path = this.svg.append('path')
 					.datum(xArray)
 					.attr('d', line)
-					.attr('fill', 'none')
-					.attr('stroke', this.parseColor(option))
+					.attr('fill', style.line.fill)
+					.attr('stroke', style.line.stroke)
 					.attr('stroke-width', 2);
 
-				if (option.indexOf('--') >= 0) {
-					path.attr('stroke-dasharray', '5,5');
-				} else if (option.indexOf('-.') >= 0) {
-					path.attr('stroke-dasharray', '4,6,2,6');
-				} else if (option.indexOf(':') >= 0) {
-					path.attr('stroke-dasharray', '2,3');
+				if (style.line.stroke_dasharray) {
+					path.attr('stroke-dasharray', style.line.stroke_dasharray);
 				}
 			}
+		},
+
+		_parsePlotOption: function(option) {
+			var res = {
+				circle: null,
+				line: null
+			};
+
+			if (option.indexOf('o') >= 0) {
+				res.circle = {
+					fill: this._parseColor(option),
+					stroke: null
+				};
+			}
+			if (option.indexOf('-') >= 0 || option.indexOf(':') >= 0) {
+				res.line = {
+					fill: 'none',
+					stroke: this._parseColor(option),
+					stroke_dasharray: null
+				};
+				if (option.indexOf('--') >= 0) {
+					res.line.stroke_dasharray = '5,5';
+				} else if (option.indexOf('-.') >= 0) {
+					res.line.stroke_dasharray = '4,6,2,6';
+				} else if (option.indexOf(':') >= 0) {
+					res.line.stroke_dasharray = '2,3';
+				}
+			}
+
+			return res;
+		},
+
+		_parseColor: function(option) {
+			if (!option) return 'blue';
+			var colors = {
+				b: 'blue',
+				g: 'green',
+				r: 'red',
+				c: 'cyan',
+				m: 'magenta',
+				y: 'yellow',
+				k: 'black',
+				w: 'white'
+			}
+			for (var key in colors) {
+				if (option.indexOf(key) >= 0) {
+					return colors[key];
+				}
+			}
+			return 'blue';
 		},
 
 		_show_scatter: function(data, xScale, yScale) {
@@ -321,24 +378,71 @@ var Trinity = {};
 				.call(yAxis);
 		},
 
-		parseColor: function(option) {
-			if (!option) return 'blue';
-			var colors = {
-				b: 'blue',
-				g: 'green',
-				r: 'red',
-				c: 'cyan',
-				m: 'magenta',
-				y: 'yellow',
-				k: 'black',
-				w: 'white'
-			}
-			for (var key in colors) {
-				if (option.indexOf(key) >= 0) {
-					return colors[key];
+		_drawLegend: function(legend) {
+			var left=50, top=30;
+
+			var base = this.svg
+			.append('g')
+			.attr('transform', 'translate('+left+','+top+')')
+			;
+
+			var n_legends = this.data.length;
+			var max_title_len = (legend.titles.reduce(function(a,b){return a.length > b.length ? a : b})).length;
+			var frame_width = 40 + max_title_len*10, frame_height = 15*n_legends+10;
+
+			var frame = base
+			.append('rect')
+			.attr('width', frame_width)
+			.attr('height', frame_height)
+			.attr('fill', 'white')
+			.attr('stroke', 'black')
+			;
+
+			var i = 0;
+			this.data.forEach(function(d){
+				if (d.drawLegend) {
+					var x = 10;
+					var y = 15 + i*15;
+					var title = legend.titles && legend.titles[i] ? legend.titles[i] : '';
+					var g = base.append('g').attr('transform', 'translate('+x+','+y+')');
+					d.drawLegend.call(this, d.data, title, g);
+					i++;
+				}
+			}, this);
+		},
+
+		_drawPlotLegend: function(data, title, g) {
+			var style = this._parsePlotOption(data[2]);
+			var x_start=5, x_end = 35;
+			var y = -5;
+			if (style.circle) {
+				for (var x=x_start ; x<=x_end ; x+=10) {
+					g.append('circle')
+					.attr('cx', x)
+					.attr('cy', y)
+					.attr('fill', style.circle.fill)
+					.attr('r', 2)
+					;
 				}
 			}
-			return 'blue';
+			if (style.line) {
+				var line = g.append('line')
+				.attr('x1', x_start)
+				.attr('y1', y)
+				.attr('x2', x_end)
+				.attr('y2', y)
+				.attr('stroke', style.line.stroke)
+				.attr('stroke-width', 2)
+				;
+				if (style.line.stroke_dasharray) {
+					line.attr('stroke-dasharray', style.line.stroke_dasharray);
+				}
+			}
+			g.append('text').text(title)
+			.attr('font-size', 10)
+			.attr('x', x_end + 10)
+			.attr('y', 0)
+			;
 		}
 
 	};
