@@ -444,15 +444,13 @@ var Trinity = {};
 			.append('g')
 			.attr('width', ylabel_width)
 			.attr('height', ylabel_height)
-			.attr('transform', 'translate('+ylabel_left+','+ylabel_top+')')
+			.attr('transform', 'translate('+ylabel_left+','+ylabel_top+') rotate(270)')
 			;
 
 			var label = base.append('text')
 			.text(title)
 			.attr('x', 0)
 			.attr('y', 0)
-			.attr('writing-mode', 'tb-rl')
-			.attr('glyph-orientation-vertical', 90)
 			.attr('text-anchor', 'middle')
 			.attr('font-size', fontsize)
 			;
@@ -555,7 +553,7 @@ var Trinity = {};
 			} else {
 				var legend_color_list = [1];
 			}
-			
+
 			for (var i=0 ; i<legend_color_list.length ; i++) {
 				var x = x_start + (x_end - x_start) * i / legend_color_list.length;
 				g.append('circle')
