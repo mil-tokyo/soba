@@ -78,6 +78,20 @@ var Trinity = {};
 			this.y_range = y_range;
 		},
 
+		xlabel: function(title, options) {
+			this.xlabel_settings = {
+				title: title,
+				options: options
+			};
+		},
+
+		ylabel: function(title, options) {
+			this.ylabel_settings = {
+				title: title,
+				options: options
+			};
+		},
+
 		legend: function(titles, location) {
 			this.legend_settings = {
 				titles: titles,
@@ -119,6 +133,15 @@ var Trinity = {};
 			});
 			y_range[1] = [y_range[0], y_range[0] = y_range[1]][0]; // Swap
 
+			if (this.xlabel_settings) {
+				var xlabel_fontsize = this.xlabel_settings.fontsize ? this.xlabel_settings.fontsize : 20;
+				this.padding.bottom += xlabel_fontsize + 20;
+			}
+			if (this.ylabel_settings) {
+				var ylabel_fontsize = this.ylabel_settings.fontsize ? this.ylabel_settings.fontsize : 20;
+				this.padding.left += ylabel_fontsize += 10;
+			}
+
 			var xScale = d3.scale.linear()
 				.domain(x_range)
 				.range([this.padding.left, this.w - this.padding.right]);
@@ -133,6 +156,13 @@ var Trinity = {};
 			});
 
 			this.drawAxis(xScale, yScale);
+			if (this.xlabel_settings) {
+				this._drawXLabel(this.xlabel_settings);
+			}
+			if (this.ylabel_settings) {
+				this._drawYLabel(this.ylabel_settings);
+			}
+
 			if (this.legend_settings) {
 				this._drawLegend(this.legend_settings);
 			}
@@ -376,6 +406,55 @@ var Trinity = {};
 				.attr("class", "axis")
 				.attr('transform', 'translate('+this.padding.left+', 0)')
 				.call(yAxis);
+		},
+
+		_drawXLabel: function(xlabel_settings) {
+			var title = xlabel_settings.title;
+			var options = xlabel_settings.options ? xlabel_settings.options : {};
+			var fontsize = options.fontsize ? options.fontsize : 20;
+			var xlabel_height = fontsize, xlabel_width = title.length * fontsize / 2;
+			var xlabel_top = this.h - xlabel_height;
+			var xlabel_left = (this.w - this.padding.left -this.padding.right - xlabel_width) / 2 + this.padding.left;
+			var base = this.svg
+			.append('g')
+			.attr('width', xlabel_width)
+			.attr('height', xlabel_height)
+			.attr('transform', 'translate('+xlabel_left+','+xlabel_top+')')
+			;
+
+			var label = base.append('text')
+			.text(title)
+			.attr('x', 0)
+			.attr('y', 0)
+			.attr('text-anchor', 'middle')
+			.attr('font-size', fontsize)
+			;
+		},
+
+		_drawYLabel: function(ylabel_settings) {
+			var title = ylabel_settings.title;
+			var options = ylabel_settings.options ? ylabel_settings.options : {};
+			var fontsize = options.fontsize ? options.fontsize : 20;
+			var ylabel_height = title.length * fontsize / 2, ylabel_width = fontsize;
+			var ylabel_top = (this.h - this.padding.top - this.padding.bottom - ylabel_height) / 2 + this.padding.top;
+			var ylabel_left = ylabel_width;
+
+			var base = this.svg
+			.append('g')
+			.attr('width', ylabel_width)
+			.attr('height', ylabel_height)
+			.attr('transform', 'translate('+ylabel_left+','+ylabel_top+')')
+			;
+
+			var label = base.append('text')
+			.text(title)
+			.attr('x', 0)
+			.attr('y', 0)
+			.attr('writing-mode', 'tb-rl')
+			.attr('glyph-orientation-vertical', 90)
+			.attr('text-anchor', 'middle')
+			.attr('font-size', fontsize)
+			;
 		},
 
 		_drawLegend: function(legend) {
