@@ -81,7 +81,7 @@ var Trinity = {};
 		legend: function(titles, location) {
 			this.legend_settings = {
 				titles: titles,
-				location: location ? location : null
+				loc: location ? location : null
 			};
 		},
 
@@ -379,16 +379,30 @@ var Trinity = {};
 		},
 
 		_drawLegend: function(legend) {
-			var left=50, top=30;
-
-			var base = this.svg
-			.append('g')
-			.attr('transform', 'translate('+left+','+top+')')
-			;
-
 			var n_legends = this.data.length;
 			var max_title_len = (legend.titles.reduce(function(a,b){return a.length > b.length ? a : b})).length;
 			var frame_width = 40 + max_title_len*10, frame_height = 15*n_legends+10;
+			var legend_margin = 10;
+			var legend_top = (this.h - frame_height)/2;
+			var legend_left = (this.w - frame_width)/2;
+
+			var legend_loc = legend.loc ? legend.loc : 'upper right';
+			if (legend_loc.indexOf('upper') >= 0) {
+				legend_top = this.padding.top + legend_margin;
+			} else if (legend_loc.indexOf('bottom') >= 0) {
+				legend_top = this.h - this.padding.bottom - frame_height - legend_margin;
+			}
+			if (legend_loc.indexOf('left') >= 0) {
+				legend_left = this.padding.left + legend_margin;
+			} else if (legend_loc.indexOf('right') >= 0) {
+				legend_left=this.w - this.padding.left - frame_width - legend_margin;
+			}
+
+			var base = this.svg
+			.append('g')
+			.attr('transform', 'translate('+legend_left+','+legend_top+')')
+			;
+
 
 			var frame = base
 			.append('rect')
