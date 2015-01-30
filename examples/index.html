@@ -21,6 +21,10 @@
 				width: 640px;
 				height: 480px;
 			}
+			#scatter-line {
+				width: 640px;
+				height: 480px;
+			}
 			#gaussian_auto {
 				width: 480px;
 				height: 480px;
@@ -36,6 +40,7 @@
 		<div>
 			<div id="sine-curves"></div>
 			<div id="scatter"></div>
+			<div id="scatter-line"></div>
 			<div id="gaussian_auto"></div>
 			<div id="gaussian"></div>
 		</div>
@@ -80,7 +85,29 @@
 			plt_modal.show();
 
 			// Scatter
+			var scatters = $M.fromArray([
+				[1, 1],
+				[0, 1],
+				[1, 1],
+				[1, 2],
+				[-1, -2],
+				[1, 0.1],
+				[2, 2],
+				[1, 2],
+				[9, 7],
+				[13, 10],
+				[10, 7],
+				[10, 8],
+			]);
+			var x = $M.getCol(scatters,0);
+			var y = $M.getCol(scatters,1);
 			var plt_scatter = new Trinity('#scatter');
+			plt_scatter.scatter(x,y);
+			plt_scatter.legend(['Scatter'])
+			plt_scatter.show();
+
+			// Scatter and line
+			var plt_scatter_line = new Trinity('#scatter-line');
 			var scatter_data = $M.fromArray([
 					[ 1.4949318 ,  3.85848832],
 					[ 1.42613574,  0.0456529 ],
@@ -106,9 +133,10 @@
 			var colors = $M.fromArray([[0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0]]).t();
 			var x = $M.getCol(scatter_data,0);
 			var y = $M.getCol(scatter_data,1);
-			plt_scatter.scatter(x,y, colors);
-			plt_scatter.legend(['scatter']);
-			plt_scatter.show();
+			plt_scatter_line.scatter(x,y, colors);
+			plt_scatter_line.plot($M.fromArray([[-1],[4]]), $M.fromArray([[2],[3]]));
+			plt_scatter_line.legend(['scatter', 'line']);
+			plt_scatter_line.show();
 
 			// Gaussian distribution
 			var plt_gaussian_auto = new Trinity('#gaussian_auto');

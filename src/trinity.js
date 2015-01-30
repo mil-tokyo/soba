@@ -218,6 +218,8 @@ var Trinity = {};
 				line: null
 			};
 
+			if (!option) option = 'b-';
+
 			if (option.indexOf('o') >= 0) {
 				res.circle = {
 					fill: this._parseColor(option),
@@ -541,7 +543,7 @@ var Trinity = {};
 			var x = data[0], y = data[1], color = data[2];
 			var color_list = d3.scale.category20();
 
-			var x_start=5, x_end = 35;
+			var x_start=10, x_end = 30;
 			var y = -3;
 
 			var legend_color_list = [];
@@ -554,19 +556,28 @@ var Trinity = {};
 				var legend_color_list = [1];
 			}
 
-			for (var i=0 ; i<legend_color_list.length ; i++) {
-				var x = x_start + (x_end - x_start) * i / legend_color_list.length;
+			if (legend_color_list.length > 1) {
+				for (var i=0 ; i<legend_color_list.length ; i++) {
+					var x = x_start + (x_end - x_start) * i / (legend_color_list.length-1);
+					g.append('circle')
+					.attr('cx', x)
+					.attr('cy', y)
+					.attr('fill', color_list(legend_color_list[i]))
+					.attr('r', 2);
+					;
+				}
+			} else {
 				g.append('circle')
-				.attr('cx', x)
+				.attr('cx', (x_end-x_start)/2+x_start)
 				.attr('cy', y)
-				.attr('fill', color_list(legend_color_list[i]))
+				.attr('fill', color_list(legend_color_list[1]))
 				.attr('r', 2);
 				;
 			}
 
 			g.append('text').text(title)
 			.attr('font-size', 10)
-			.attr('x', x_end + 10)
+			.attr('x', x_end + 15)
 			.attr('y', 0)
 			;
 		}
