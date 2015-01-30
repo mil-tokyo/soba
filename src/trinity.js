@@ -135,11 +135,11 @@ var Trinity = {};
 			y_range[1] = [y_range[0], y_range[0] = y_range[1]][0]; // Swap
 
 			if (this.xlabel_settings) {
-				var xlabel_fontsize = this.xlabel_settings.fontsize ? this.xlabel_settings.fontsize : 20;
+				var xlabel_fontsize = (this.xlabel_settings.options && this.xlabel_settings.options.fontsize) ? this.xlabel_settings.options.fontsize : 20;
 				this.padding.bottom += xlabel_fontsize + 20;
 			}
 			if (this.ylabel_settings) {
-				var ylabel_fontsize = this.ylabel_settings.fontsize ? this.ylabel_settings.fontsize : 20;
+				var ylabel_fontsize = (this.ylabel_settings.options && this.ylabel_settings.options.fontsize) ? this.ylabel_settings.options.fontsize : 20;
 				this.padding.left += ylabel_fontsize += 10;
 			}
 
