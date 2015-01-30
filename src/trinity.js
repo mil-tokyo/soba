@@ -43,7 +43,8 @@ var Trinity = {};
 				data: [x.clone(), y.clone(), color],
 				x_range: [$M.min(x), $M.max(x)],
 				y_range: [$M.min(y), $M.max(y)],
-				show: this._show_scatter
+				show: this._show_scatter,
+				drawLegend: this._drawScatterLegend
 			})
 		},
 
@@ -134,11 +135,11 @@ var Trinity = {};
 			y_range[1] = [y_range[0], y_range[0] = y_range[1]][0]; // Swap
 
 			if (this.xlabel_settings) {
-				var xlabel_fontsize = this.xlabel_settings.fontsize ? this.xlabel_settings.fontsize : 20;
+				var xlabel_fontsize = (this.xlabel_settings.options && this.xlabel_settings.options.fontsize) ? this.xlabel_settings.options.fontsize : 20;
 				this.padding.bottom += xlabel_fontsize + 20;
 			}
 			if (this.ylabel_settings) {
-				var ylabel_fontsize = this.ylabel_settings.fontsize ? this.ylabel_settings.fontsize : 20;
+				var ylabel_fontsize = (this.ylabel_settings.options && this.ylabel_settings.options.fontsize) ? this.ylabel_settings.options.fontsize : 20;
 				this.padding.left += ylabel_fontsize += 10;
 			}
 
@@ -216,6 +217,8 @@ var Trinity = {};
 				circle: null,
 				line: null
 			};
+
+			if (!option) option = 'b-';
 
 			if (option.indexOf('o') >= 0) {
 				res.circle = {
@@ -443,15 +446,13 @@ var Trinity = {};
 			.append('g')
 			.attr('width', ylabel_width)
 			.attr('height', ylabel_height)
-			.attr('transform', 'translate('+ylabel_left+','+ylabel_top+')')
+			.attr('transform', 'translate('+ylabel_left+','+ylabel_top+') rotate(270)')
 			;
 
 			var label = base.append('text')
 			.text(title)
 			.attr('x', 0)
 			.attr('y', 0)
-			.attr('writing-mode', 'tb-rl')
-			.attr('glyph-orientation-vertical', 90)
 			.attr('text-anchor', 'middle')
 			.attr('font-size', fontsize)
 			;
@@ -534,6 +535,49 @@ var Trinity = {};
 			g.append('text').text(title)
 			.attr('font-size', 10)
 			.attr('x', x_end + 10)
+			.attr('y', 0)
+			;
+		},
+
+		_drawScatterLegend: function(data, title, g) {
+			var x = data[0], y = data[1], color = data[2];
+			var color_list = d3.scale.category20();
+
+			var x_start=10, x_end = 30;
+			var y = -3;
+
+			var legend_color_list = [];
+			if (color instanceof $M) {
+				var color_ = $M.toArray(color.t())[0];
+				var legend_color_list = color_.filter(function (x, i, self) { // Unique array
+					return self.indexOf(x) === i;
+				});
+			} else {
+				var legend_color_list = [1];
+			}
+
+			if (legend_color_list.length > 1) {
+				for (var i=0 ; i<legend_color_list.length ; i++) {
+					var x = x_start + (x_end - x_start) * i / (legend_color_list.length-1);
+					g.append('circle')
+					.attr('cx', x)
+					.attr('cy', y)
+					.attr('fill', color_list(legend_color_list[i]))
+					.attr('r', 2);
+					;
+				}
+			} else {
+				g.append('circle')
+				.attr('cx', (x_end-x_start)/2+x_start)
+				.attr('cy', y)
+				.attr('fill', color_list(legend_color_list[1]))
+				.attr('r', 2);
+				;
+			}
+
+			g.append('text').text(title)
+			.attr('font-size', 10)
+			.attr('x', x_end + 15)
 			.attr('y', 0)
 			;
 		}
