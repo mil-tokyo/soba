@@ -43,7 +43,8 @@ var Trinity = {};
 				data: [x.clone(), y.clone(), color],
 				x_range: [$M.min(x), $M.max(x)],
 				y_range: [$M.min(y), $M.max(y)],
-				show: this._show_scatter
+				show: this._show_scatter,
+				drawLegend: this._drawScatterLegend
 			})
 		},
 
@@ -531,6 +532,40 @@ var Trinity = {};
 					line.attr('stroke-dasharray', style.line.stroke_dasharray);
 				}
 			}
+			g.append('text').text(title)
+			.attr('font-size', 10)
+			.attr('x', x_end + 10)
+			.attr('y', 0)
+			;
+		},
+
+		_drawScatterLegend: function(data, title, g) {
+			var x = data[0], y = data[1], color = data[2];
+			var color_list = d3.scale.category20();
+
+			var x_start=5, x_end = 35;
+			var y = -3;
+
+			var legend_color_list = [];
+			if (color instanceof $M) {
+				var color_ = $M.toArray(color.t())[0];
+				var legend_color_list = color_.filter(function (x, i, self) { // Unique array
+					return self.indexOf(x) === i;
+				});
+			} else {
+				var legend_color_list = [1];
+			}
+			
+			for (var i=0 ; i<legend_color_list.length ; i++) {
+				var x = x_start + (x_end - x_start) * i / legend_color_list.length;
+				g.append('circle')
+				.attr('cx', x)
+				.attr('cy', y)
+				.attr('fill', color_list(legend_color_list[i]))
+				.attr('r', 2);
+				;
+			}
+
 			g.append('text').text(title)
 			.attr('font-size', 10)
 			.attr('x', x_end + 10)
