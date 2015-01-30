@@ -56,6 +56,10 @@
 			    plt.plot(x,y,options[i]);
 			    x.map(function(d){ return d+0.5; });
 			}
+
+			plt.xlabel('x values');
+			plt.ylabel('y values');
+			plt.legend(['sin1', 'sin2', 'sin3', 'sin4', 'sin5', 'sin6']);
 			plt.show();
 			
 			// create modal and plot
@@ -67,6 +71,7 @@
 			    plt_modal.plot(x,y,options[i]);
 			    x.map(function(d){ return d+0.5; });
 			}
+			plt_modal.legend(['sin1', 'sin2', 'sin3', 'sin4', 'sin5', 'sin6'], 'bottom right');
 			plt_modal.show();
 
 			// Gaussian distribution

@@ -33,7 +33,8 @@ var Trinity = {};
 				data: [x.clone(),y.clone(),option],
 				x_range: [$M.min(x), $M.max(x)],
 				y_range: [$M.min(y), $M.max(y)],
-				show: this._show_plot
+				show: this._show_plot,
+				drawLegend: this._drawPlotLegend
 			})
 		},
 
@@ -77,6 +78,27 @@ var Trinity = {};
 			this.y_range = y_range;
 		},
 
+		xlabel: function(title, options) {
+			this.xlabel_settings = {
+				title: title,
+				options: options
+			};
+		},
+
+		ylabel: function(title, options) {
+			this.ylabel_settings = {
+				title: title,
+				options: options
+			};
+		},
+
+		legend: function(titles, location) {
+			this.legend_settings = {
+				titles: titles,
+				loc: location ? location : null
+			};
+		},
+
 		show: function() {
 			var data = this.data;
 
@@ -111,6 +133,15 @@ var Trinity = {};
 			});
 			y_range[1] = [y_range[0], y_range[0] = y_range[1]][0]; // Swap
 
+			if (this.xlabel_settings) {
+				var xlabel_fontsize = this.xlabel_settings.fontsize ? this.xlabel_settings.fontsize : 20;
+				this.padding.bottom += xlabel_fontsize + 20;
+			}
+			if (this.ylabel_settings) {
+				var ylabel_fontsize = this.ylabel_settings.fontsize ? this.ylabel_settings.fontsize : 20;
+				this.padding.left += ylabel_fontsize += 10;
+			}
+
 			var xScale = d3.scale.linear()
 				.domain(x_range)
 				.range([this.padding.left, this.w - this.padding.right]);
@@ -125,6 +156,16 @@ var Trinity = {};
 			});
 
 			this.drawAxis(xScale, yScale);
+			if (this.xlabel_settings) {
+				this._drawXLabel(this.xlabel_settings);
+			}
+			if (this.ylabel_settings) {
+				this._drawYLabel(this.ylabel_settings);
+			}
+
+			if (this.legend_settings) {
+				this._drawLegend(this.legend_settings);
+			}
 		},
 
 		_show_plot: function(data, xScale, yScale) {
@@ -132,7 +173,8 @@ var Trinity = {};
 			option = option ? option : '';
 			var xArray = $M.toArray(x);
 
-			if (option.indexOf('o') >= 0) {
+			style = this._parsePlotOption(option);
+			if (style.circle) {
 				this.svg.append('g').selectAll("circle")
 					.data(xArray)
 					.enter()
@@ -143,11 +185,10 @@ var Trinity = {};
 					.attr('cy', function(d, i){
 						return yScale(y.get(i,0));
 					})
-					.attr('fill', this.parseColor(option))
+					.attr('fill', style.circle.fill)
 					.attr('r', 2);
-
 			}
-			if (option.indexOf('-') >= 0 || option.indexOf(':') >= 0) {
+			if (style.line) {
 				var line = d3.svg.line()
 					.x(function(d, i){
 						return xScale(d);
@@ -160,18 +201,64 @@ var Trinity = {};
 				var path = this.svg.append('path')
 					.datum(xArray)
 					.attr('d', line)
-					.attr('fill', 'none')
-					.attr('stroke', this.parseColor(option))
+					.attr('fill', style.line.fill)
+					.attr('stroke', style.line.stroke)
 					.attr('stroke-width', 2);
 
-				if (option.indexOf('--') >= 0) {
-					path.attr('stroke-dasharray', '5,5');
-				} else if (option.indexOf('-.') >= 0) {
-					path.attr('stroke-dasharray', '4,6,2,6');
-				} else if (option.indexOf(':') >= 0) {
-					path.attr('stroke-dasharray', '2,3');
+				if (style.line.stroke_dasharray) {
+					path.attr('stroke-dasharray', style.line.stroke_dasharray);
 				}
 			}
+		},
+
+		_parsePlotOption: function(option) {
+			var res = {
+				circle: null,
+				line: null
+			};
+
+			if (option.indexOf('o') >= 0) {
+				res.circle = {
+					fill: this._parseColor(option),
+					stroke: null
+				};
+			}
+			if (option.indexOf('-') >= 0 || option.indexOf(':') >= 0) {
+				res.line = {
+					fill: 'none',
+					stroke: this._parseColor(option),
+					stroke_dasharray: null
+				};
+				if (option.indexOf('--') >= 0) {
+					res.line.stroke_dasharray = '5,5';
+				} else if (option.indexOf('-.') >= 0) {
+					res.line.stroke_dasharray = '4,6,2,6';
+				} else if (option.indexOf(':') >= 0) {
+					res.line.stroke_dasharray = '2,3';
+				}
+			}
+
+			return res;
+		},
+
+		_parseColor: function(option) {
+			if (!option) return 'blue';
+			var colors = {
+				b: 'blue',
+				g: 'green',
+				r: 'red',
+				c: 'cyan',
+				m: 'magenta',
+				y: 'yellow',
+				k: 'black',
+				w: 'white'
+			}
+			for (var key in colors) {
+				if (option.indexOf(key) >= 0) {
+					return colors[key];
+				}
+			}
+			return 'blue';
 		},
 
 		_show_scatter: function(data, xScale, yScale) {
@@ -247,33 +334,35 @@ var Trinity = {};
 			.domain(domain)
 			.range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
 
+			function findPathInGrid(edges, level) {
+				var points = [];
+				for (var i=0; i<edges.length; i++) {
+					var i2 = (i+1)%edges.length;
+					if ((edges[i][2]-level) * (edges[i2][2]-level) < 0) {
+						var offset = (level-edges[i][2])/(edges[i2][2]-edges[i][2]);
+						points.push([
+							edges[i][0] + (edges[i2][0]-edges[i][0])*offset,
+							edges[i][1] + (edges[i2][1]-edges[i][1])*offset
+						]);
+					}
+				}
+				return points;
+			}
+
 			var level = 0; // tmp
 			var svg = this.svg;
+			var edges = new Array(4);
 			levels.forEach(function(level){
 				var level_color = color(level);
 				// Scan and draw lines
 				for (var ix=0 ; ix<x_bins-1 ; ix++) {
 					for (var iy=0 ; iy<y_bins-1 ; iy++) {
-						var points = [];
-						for (var k=0 ; k<4 ; k++) {
-							var p0, p1;
-							switch (k) {
-								case 0: // Top
-								p0 = [xmap[ix  ][iy  ], ymap[ix  ][iy  ], mesh[ix  ][iy  ]]; p1 = [xmap[ix+1][iy  ], ymap[ix+1][iy  ], mesh[ix+1][iy  ]]; break;
-								case 1: // Left
-								p0 = [xmap[ix  ][iy  ], ymap[ix  ][iy  ], mesh[ix  ][iy  ]]; p1 = [xmap[ix  ][iy+1], ymap[ix  ][iy+1], mesh[ix  ][iy+1]]; break;
-								case 2: // Right
-								p0 = [xmap[ix+1][iy  ], ymap[ix+1][iy  ], mesh[ix+1][iy  ]]; p1 = [xmap[ix+1][iy+1], ymap[ix+1][iy+1], mesh[ix+1][iy+1]]; break;
-								case 3: // Bottom
-								p0 = [xmap[ix  ][iy+1], ymap[ix  ][iy+1], mesh[ix  ][iy+1]]; p1 = [xmap[ix+1][iy+1], ymap[ix+1][iy+1], mesh[ix+1][iy+1]]; break;
-							}
-							if ((p0[2]-level) * (p1[2]-level) < 0) {
-								var offset = (level-p0[2])/(p1[2]-p0[2]);
-								var x = p0[0] + (p1[0]-p0[0])*offset;
-								var y = p0[1] + (p1[1]-p0[1])*offset;
-								points.push([x,y]);
-							}
-						}
+						edges[0] = [xmap[ix  ][iy  ], ymap[ix  ][iy  ], mesh[ix  ][iy  ]];
+						edges[1] = [xmap[ix+1][iy  ], ymap[ix+1][iy  ], mesh[ix+1][iy  ]];
+						edges[2] = [xmap[ix+1][iy+1], ymap[ix+1][iy+1], mesh[ix+1][iy+1]];
+						edges[3] = [xmap[ix  ][iy+1], ymap[ix  ][iy+1], mesh[ix  ][iy+1]];
+
+						points = findPathInGrid(edges, level);
 
 						if (points.length == 2) {
 							var line = d3.svg.line()
@@ -319,24 +408,134 @@ var Trinity = {};
 				.call(yAxis);
 		},
 
-		parseColor: function(option) {
-			if (!option) return 'blue';
-			var colors = {
-				b: 'blue',
-				g: 'green',
-				r: 'red',
-				c: 'cyan',
-				m: 'magenta',
-				y: 'yellow',
-				k: 'black',
-				w: 'white'
+		_drawXLabel: function(xlabel_settings) {
+			var title = xlabel_settings.title;
+			var options = xlabel_settings.options ? xlabel_settings.options : {};
+			var fontsize = options.fontsize ? options.fontsize : 20;
+			var xlabel_height = fontsize, xlabel_width = title.length * fontsize / 2;
+			var xlabel_top = this.h - xlabel_height;
+			var xlabel_left = (this.w - this.padding.left -this.padding.right - xlabel_width) / 2 + this.padding.left;
+			var base = this.svg
+			.append('g')
+			.attr('width', xlabel_width)
+			.attr('height', xlabel_height)
+			.attr('transform', 'translate('+xlabel_left+','+xlabel_top+')')
+			;
+
+			var label = base.append('text')
+			.text(title)
+			.attr('x', 0)
+			.attr('y', 0)
+			.attr('text-anchor', 'middle')
+			.attr('font-size', fontsize)
+			;
+		},
+
+		_drawYLabel: function(ylabel_settings) {
+			var title = ylabel_settings.title;
+			var options = ylabel_settings.options ? ylabel_settings.options : {};
+			var fontsize = options.fontsize ? options.fontsize : 20;
+			var ylabel_height = title.length * fontsize / 2, ylabel_width = fontsize;
+			var ylabel_top = (this.h - this.padding.top - this.padding.bottom - ylabel_height) / 2 + this.padding.top;
+			var ylabel_left = ylabel_width;
+
+			var base = this.svg
+			.append('g')
+			.attr('width', ylabel_width)
+			.attr('height', ylabel_height)
+			.attr('transform', 'translate('+ylabel_left+','+ylabel_top+')')
+			;
+
+			var label = base.append('text')
+			.text(title)
+			.attr('x', 0)
+			.attr('y', 0)
+			.attr('writing-mode', 'tb-rl')
+			.attr('glyph-orientation-vertical', 90)
+			.attr('text-anchor', 'middle')
+			.attr('font-size', fontsize)
+			;
+		},
+
+		_drawLegend: function(legend) {
+			var n_legends = this.data.length;
+			var max_title_len = (legend.titles.reduce(function(a,b){return a.length > b.length ? a : b})).length;
+			var frame_width = 40 + max_title_len*10, frame_height = 15*n_legends+10;
+			var legend_margin = 10;
+			var legend_top = (this.h - frame_height)/2;
+			var legend_left = (this.w - frame_width)/2;
+
+			var legend_loc = legend.loc ? legend.loc : 'upper right';
+			if (legend_loc.indexOf('upper') >= 0) {
+				legend_top = this.padding.top + legend_margin;
+			} else if (legend_loc.indexOf('bottom') >= 0) {
+				legend_top = this.h - this.padding.bottom - frame_height - legend_margin;
 			}
-			for (var key in colors) {
-				if (option.indexOf(key) >= 0) {
-					return colors[key];
+			if (legend_loc.indexOf('left') >= 0) {
+				legend_left = this.padding.left + legend_margin;
+			} else if (legend_loc.indexOf('right') >= 0) {
+				legend_left=this.w - this.padding.left - frame_width - legend_margin;
+			}
+
+			var base = this.svg
+			.append('g')
+			.attr('transform', 'translate('+legend_left+','+legend_top+')')
+			;
+
+
+			var frame = base
+			.append('rect')
+			.attr('width', frame_width)
+			.attr('height', frame_height)
+			.attr('fill', 'white')
+			.attr('stroke', 'black')
+			;
+
+			var i = 0;
+			this.data.forEach(function(d){
+				if (d.drawLegend) {
+					var x = 10;
+					var y = 15 + i*15;
+					var title = legend.titles && legend.titles[i] ? legend.titles[i] : '';
+					var g = base.append('g').attr('transform', 'translate('+x+','+y+')');
+					d.drawLegend.call(this, d.data, title, g);
+					i++;
+				}
+			}, this);
+		},
+
+		_drawPlotLegend: function(data, title, g) {
+			var style = this._parsePlotOption(data[2]);
+			var x_start=5, x_end = 35;
+			var y = -5;
+			if (style.circle) {
+				for (var x=x_start ; x<=x_end ; x+=10) {
+					g.append('circle')
+					.attr('cx', x)
+					.attr('cy', y)
+					.attr('fill', style.circle.fill)
+					.attr('r', 2)
+					;
 				}
 			}
-			return 'blue';
+			if (style.line) {
+				var line = g.append('line')
+				.attr('x1', x_start)
+				.attr('y1', y)
+				.attr('x2', x_end)
+				.attr('y2', y)
+				.attr('stroke', style.line.stroke)
+				.attr('stroke-width', 2)
+				;
+				if (style.line.stroke_dasharray) {
+					line.attr('stroke-dasharray', style.line.stroke_dasharray);
+				}
+			}
+			g.append('text').text(title)
+			.attr('font-size', 10)
+			.attr('x', x_end + 10)
+			.attr('y', 0)
+			;
 		}
 
 	};
