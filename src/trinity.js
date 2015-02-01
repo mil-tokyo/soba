@@ -88,7 +88,7 @@ var Trinity = {};
 
 		ylabel: function(title, options) {
 			this.ylabel_settings = {
-				title: title,
+				title: title ? title : [],
 				options: options
 			};
 		},
@@ -540,14 +540,19 @@ var Trinity = {};
 					line.attr('stroke-dasharray', style.line.stroke_dasharray);
 				}
 			}
-			var textarea = g.append('text').text(title)
-			.attr('font-size', 10)
-			.attr('x', x_end + 10)
-			.attr('y', 0)
-			;
 			
-			var bbox = textarea.node().getBBox();
-			return bbox.x + bbox.width;
+			if (title) {
+				var textarea = g.append('text').text(title)
+				.attr('font-size', 10)
+				.attr('x', x_end + 10)
+				.attr('y', 0)
+				;
+			
+				var bbox = textarea.node().getBBox();
+				return bbox.x + bbox.width;
+			} else {
+				return x_end;
+			}
 		},
 
 		_drawScatterLegend: function(data, title, g) {
