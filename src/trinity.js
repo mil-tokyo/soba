@@ -460,8 +460,33 @@ var Trinity = {};
 
 		_drawLegend: function(legend) {
 			var n_legends = this.data.length;
-			var max_title_len = (legend.titles.reduce(function(a,b){return a.length > b.length ? a : b})).length;
-			var frame_width = 40 + max_title_len*10, frame_height = 15*n_legends+10;
+
+			var base = this.svg
+			.append('g')
+			;
+
+			var frame = base
+			.append('rect')
+			.attr('fill', 'white')
+			.attr('stroke', 'black')
+			;
+
+			var i = 0;
+			var widths = [];
+			this.data.forEach(function(d){
+				if (d.drawLegend) {
+					var x = 10;
+					var y = 15 + i*15;
+					var title = legend.titles && legend.titles[i] ? legend.titles[i] : '';
+					var g = base.append('g').attr('transform', 'translate('+x+','+y+')');
+					var w = d.drawLegend.call(this, d.data, title, g);
+					widths.push(w);
+					i++;
+				}
+			}, this);
+			
+			var max_width = Math.max.apply(null, widths);
+			var frame_width = max_width + 20, frame_height = 15*n_legends+10;
 			var legend_margin = 10;
 			var legend_top = (this.h - frame_height)/2;
 			var legend_left = (this.w - frame_width)/2;
@@ -473,36 +498,19 @@ var Trinity = {};
 				legend_top = this.h - this.padding.bottom - frame_height - legend_margin;
 			}
 			if (legend_loc.indexOf('left') >= 0) {
-				legend_left = this.padding.left + legend_margin;
+				legend_left = this.padding.right + legend_margin;
 			} else if (legend_loc.indexOf('right') >= 0) {
-				legend_left=this.w - this.padding.left - frame_width - legend_margin;
+				legend_left=this.w - this.padding.right - frame_width - legend_margin;
 			}
-
-			var base = this.svg
-			.append('g')
-			.attr('transform', 'translate('+legend_left+','+legend_top+')')
-			;
-
-
-			var frame = base
-			.append('rect')
-			.attr('width', frame_width)
-			.attr('height', frame_height)
-			.attr('fill', 'white')
-			.attr('stroke', 'black')
-			;
-
-			var i = 0;
-			this.data.forEach(function(d){
-				if (d.drawLegend) {
-					var x = 10;
-					var y = 15 + i*15;
-					var title = legend.titles && legend.titles[i] ? legend.titles[i] : '';
-					var g = base.append('g').attr('transform', 'translate('+x+','+y+')');
-					d.drawLegend.call(this, d.data, title, g);
-					i++;
-				}
-			}, this);
+			
+			base
+				.attr('transform', 'translate('+legend_left+','+legend_top+')')
+				;
+			
+			frame
+				.attr('width', frame_width)
+				.attr('height', frame_height)
+				;
 		},
 
 		_drawPlotLegend: function(data, title, g) {
@@ -532,11 +540,14 @@ var Trinity = {};
 					line.attr('stroke-dasharray', style.line.stroke_dasharray);
 				}
 			}
-			g.append('text').text(title)
+			var textarea = g.append('text').text(title)
 			.attr('font-size', 10)
 			.attr('x', x_end + 10)
 			.attr('y', 0)
 			;
+			
+			var bbox = textarea.node().getBBox();
+			return bbox.x + bbox.width;
 		},
 
 		_drawScatterLegend: function(data, title, g) {
@@ -575,11 +586,14 @@ var Trinity = {};
 				;
 			}
 
-			g.append('text').text(title)
+			var textarea = g.append('text').text(title)
 			.attr('font-size', 10)
 			.attr('x', x_end + 15)
 			.attr('y', 0)
 			;
+			
+			var bbox = textarea.node().getBBox();
+			return bbox.x + bbox.width;
 		}
 
 	};
