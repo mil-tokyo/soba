@@ -9,6 +9,12 @@ var Trinity = {};
 			top: 20,
 			bottom: 20,
 		};
+		this.margin = {
+			left: 0,
+			right: 0,
+			top: 0,
+			bottom: 0,
+		};
 		var parent = d3.select(selector);
 		this.w = Trinity.getStyle(parent[0][0], 'width');
 		this.h = Trinity.getStyle(parent[0][0], 'height');
@@ -69,21 +75,19 @@ var Trinity = {};
 		},
 
 		xlabel: function(title, options) {
-			this.xlabel_settings = {
-				title: title,
-				options: options
-			};
+			var obj = new Trinity.Label(title, options, 0);
+			var g = this._reserveSurrounding('bottom', 40);
+			this.surroundings.push([obj, g]);
 		},
 
 		ylabel: function(title, options) {
-			this.ylabel_settings = {
-				title: title ? title : [],
-				options: options
-			};
+			var obj = new Trinity.Label(title, options, 270);
+			var g = this._reserveSurrounding('left', 40);
+			this.surroundings.push([obj, g]);
 		},
 
 		legend: function(titles, location) {
-			var obj = new Trinity.Legend(this.elements, titles, location ? location : null, this.padding);
+			var obj = new Trinity.Legend(this.elements, titles, location ? location : null, this.padding, this.margin);
 			this.elements.push(obj);
 		},
 		
@@ -105,20 +109,36 @@ var Trinity = {};
 					break;
 					
 				case 'bottom':
+					var x = this.margin.left;
+					var y = this.h - this.margin.bottom - width;
+					g
+						.attr('transform', 'translate('+x+','+y+')')
+						.attr('width', this.w - this.margin.left - this.margin.right)
+						.attr('height', width)
+					;
+					this.margin.bottom += width;
 					break;
 					
 				case 'right':
-					var x = this.w - this.padding.right - width;
-					var y = this.padding.top;
+					var x = this.w - this.margin.right - width;
+					var y = this.margin.top;
 					g
 						.attr('transform', 'translate('+x+','+y+')')
 						.attr('width', width)
-						.attr('height', this.h - this.padding.top - this.padding.bottom)
+						.attr('height', this.h - this.margin.top - this.margin.bottom)
 					;
-					this.padding.right += width;
+					this.margin.right += width;
 					break;
 					
 				case 'left':
+					var x = this.margin.left;
+					var y = this.margin.top;
+					g
+						.attr('transform', 'translate('+x+','+y+')')
+						.attr('width', width)
+						.attr('height', this.h - this.margin.top - this.margin.bottom)
+					;
+					this.margin.left += width;
 					break;
 			}
 			
@@ -156,24 +176,14 @@ var Trinity = {};
 				}
 			});
 			y_range[1] = [y_range[0], y_range[0] = y_range[1]][0]; // Swap
-			
-
-			if (this.xlabel_settings) {
-				var xlabel_fontsize = (this.xlabel_settings.options && this.xlabel_settings.options.fontsize) ? this.xlabel_settings.options.fontsize : 20;
-				this.padding.bottom += xlabel_fontsize + 20;
-			}
-			if (this.ylabel_settings) {
-				var ylabel_fontsize = (this.ylabel_settings.options && this.ylabel_settings.options.fontsize) ? this.ylabel_settings.options.fontsize : 20;
-				this.padding.left += ylabel_fontsize += 10;
-			}
 
 			var xScale = d3.scale.linear()
 				.domain(x_range)
-				.range([this.padding.left, this.w - this.padding.right]);
+				.range([this.padding.left + this.margin.left, this.w - this.padding.right - this.margin.right]);
 
 			var yScale = d3.scale.linear()
 				.domain(y_range)
-				.range([this.padding.top, this.h-this.padding.bottom]);
+				.range([this.padding.top + this.margin.top, this.h-this.padding.bottom - this.margin.bottom]);
 
 			this.elements.forEach(function(d){
 				d.show(this.svg, xScale, yScale);
@@ -205,11 +215,11 @@ var Trinity = {};
 
 			this.svg.append('g')
 				.attr("class", "axis")
-				.attr('transform', 'translate(0,'+(this.h-this.padding.bottom)+')')
+				.attr('transform', 'translate(0,'+(this.h-this.padding.bottom-this.margin.bottom)+')')
 				.call(xAxis);
 			this.svg.append('g')
 				.attr("class", "axis")
-				.attr('transform', 'translate('+this.padding.left+', 0)')
+				.attr('transform', 'translate('+(this.padding.left+this.margin.left)+', 0)')
 				.call(yAxis);
 		},
 
@@ -633,11 +643,40 @@ var Trinity = {};
 		}
 	};
 	
-	Trinity.Legend = function(elements, titles, location, padding){
+	Trinity.Label = function(title, options, orientation){
+		this.title = title;
+		this.options = options ? options : {};
+		this.orientation = orientation ? orientation : 0;
+	};
+	Trinity.Label.prototype = {
+		show: function(g){
+			var title = this.title;
+			var options = this.options;
+			var fontsize = options.fontsize ? options.fontsize : 20;
+
+			var label = g.append('text')
+				.text(title)
+				.attr('dominant-baseline', 'text-before-edge')
+				.attr('font-size', fontsize)
+			;
+			
+			var bbox = label.node().getBBox();
+			var label_w = bbox.width, label_h = bbox.height;
+			var g_w = g.attr('width'), g_h = g.attr('height');
+			
+			var rad = this.orientation * Math.PI / 180;
+			var x = g_w/2 - label_w/2*Math.cos(rad) + label_h/2*Math.sin(rad);
+			var y = g_h/2 - label_w/2*Math.sin(rad) - label_h/2*Math.cos(rad);
+			label.attr('transform', 'translate('+x+','+y+') rotate('+this.orientation+')');
+		}
+	};
+	
+	Trinity.Legend = function(elements, titles, location, padding, margin){
 		this.elements = elements;
 		this.titles = titles;
 		this.location = location;
 		this.padding = padding;
+		this.margin = margin;
 	};
 	Trinity.Legend.prototype = {
 		show: function(svg){
@@ -675,14 +714,14 @@ var Trinity = {};
 			
 			var legend_loc = this.location ? this.location : 'upper right';
 			if (legend_loc.indexOf('upper') >= 0) {
-				legend_top = this.padding.top + legend_margin;
+				legend_top = this.padding.top + this.margin.top + legend_margin;
 			} else if (legend_loc.indexOf('bottom') >= 0) {
-				legend_top = svg_h - this.padding.bottom - frame_height - legend_margin;
+				legend_top = svg_h - this.padding.bottom - this.margin.bottom - frame_height - legend_margin;
 			}
 			if (legend_loc.indexOf('left') >= 0) {
-				legend_left = this.padding.right + legend_margin;
+				legend_left = this.padding.left + this.margin.left + legend_margin;
 			} else if (legend_loc.indexOf('right') >= 0) {
-				legend_left=svg_w - this.padding.right - frame_width - legend_margin;
+				legend_left=svg_w - this.padding.right - this.margin.right - frame_width - legend_margin;
 			}
 			
 			base
@@ -696,9 +735,8 @@ var Trinity = {};
 		}
 	};
 	
-	Trinity.Colorbar = function(contour_obj, padding) {
+	Trinity.Colorbar = function(contour_obj) {
 		this.contour = contour_obj;
-		this.padding = padding;
 		Trinity.Colorbar.count++;
 	}
 	Trinity.Colorbar.count = 0;
