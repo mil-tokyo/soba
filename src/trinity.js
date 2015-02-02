@@ -220,55 +220,7 @@ var Trinity = {};
 				.attr("class", "axis")
 				.attr('transform', 'translate('+(this.padding.left+this.margin.left)+', 0)')
 				.call(yAxis);
-		},
-
-		_drawXLabel: function(xlabel_settings) {
-			var title = xlabel_settings.title;
-			var options = xlabel_settings.options ? xlabel_settings.options : {};
-			var fontsize = options.fontsize ? options.fontsize : 20;
-			var xlabel_height = fontsize, xlabel_width = title.length * fontsize / 2;
-			var xlabel_top = this.h - xlabel_height;
-			var xlabel_left = (this.w - this.padding.left -this.padding.right - xlabel_width) / 2 + this.padding.left;
-			var base = this.svg
-			.append('g')
-			.attr('width', xlabel_width)
-			.attr('height', xlabel_height)
-			.attr('transform', 'translate('+xlabel_left+','+xlabel_top+')')
-			;
-
-			var label = base.append('text')
-			.text(title)
-			.attr('x', 0)
-			.attr('y', 0)
-			.attr('text-anchor', 'middle')
-			.attr('font-size', fontsize)
-			;
-		},
-
-		_drawYLabel: function(ylabel_settings) {
-			var title = ylabel_settings.title;
-			var options = ylabel_settings.options ? ylabel_settings.options : {};
-			var fontsize = options.fontsize ? options.fontsize : 20;
-			var ylabel_height = title.length * fontsize / 2, ylabel_width = fontsize;
-			var ylabel_top = (this.h - this.padding.top - this.padding.bottom - ylabel_height) / 2 + this.padding.top;
-			var ylabel_left = ylabel_width;
-
-			var base = this.svg
-			.append('g')
-			.attr('width', ylabel_width)
-			.attr('height', ylabel_height)
-			.attr('transform', 'translate('+ylabel_left+','+ylabel_top+') rotate(270)')
-			;
-
-			var label = base.append('text')
-			.text(title)
-			.attr('x', 0)
-			.attr('y', 0)
-			.attr('text-anchor', 'middle')
-			.attr('font-size', fontsize)
-			;
 		}
-
 	};
 
 	/* Static methods */
