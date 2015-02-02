@@ -544,7 +544,9 @@ var Trinity = {};
 			return d3.hsl((1-t) * 300, 1, .5);
 		},
 		domain: function(){
-			if (this.mesh_min && this.mesh_max) {
+			if (this.levels) {
+				return [Math.min.apply(null, this.levels), Math.max.apply(null, this.levels)];
+			} else if (this.mesh_min && this.mesh_max) {
 				return [this.mesh_min, this.mesh_max];
 			}
 		},
@@ -589,6 +591,7 @@ var Trinity = {};
 				}
 				*/
 			}
+			this.levels = levels;
 
 			function findPathInGrid(edges, level) {
 				var points = [];
@@ -607,7 +610,8 @@ var Trinity = {};
 
 			var edges = new Array(4);
 			levels.forEach(function(level){
-				var level_color = this.color((level-mesh_min)/(mesh_max-mesh_min));
+				var domain = this.domain();
+				var level_color = this.color((level-domain[0])/(domain[1]-domain[0]));
 				// Scan and draw lines
 				for (var ix=0 ; ix<x_bins-1 ; ix++) {
 					for (var iy=0 ; iy<y_bins-1 ; iy++) {
