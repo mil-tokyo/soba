@@ -542,7 +542,7 @@ var Trinity = {};
 			return [this.y_min, this.y_max];
 		},
 		color: function(t){
-			return d3.hsl((1-t) * 360, 1, .5);
+			return d3.hsl((1-t) * 300, 1, .5);
 		},
 		domain: function(){
 			if (this.mesh_min && this.mesh_max) {
