@@ -14,22 +14,27 @@
 		<link rel="stylesheet" href="../src/trinity_modal.css">
 		<style>
 			#sine-curves {
+				border: solid 1px #000;
 				width: 640px;
 				height: 480px;
 			}
 			#scatter {
+				border: solid 1px #000;
 				width: 640px;
 				height: 480px;
 			}
 			#scatter-line {
+				border: solid 1px #000;
 				width: 640px;
 				height: 480px;
 			}
 			#gaussian_auto {
+				border: solid 1px #000;
 				width: 480px;
 				height: 480px;
 			}
 			#gaussian {
+				border: solid 1px #000;
 				width: 480px;
 				height: 480px;
 			}
@@ -67,9 +72,9 @@
 			    x.map(function(d){ return d+0.5; });
 			}
 
-			plt.xlabel('x values');
-			plt.ylabel('y values');
-			plt.legend(['sin1', 'sin2', 'sin3', 'sin4', 'sin5', 'sin6']);
+			plt.xlabel('x');
+			plt.ylabel('y');
+			plt.legend(['y=sin(x)', 'y=sin(x-0.5)', 'y=sin(x-1.0)', 'y=sin(x-1.5)', 'y=sin(x-2.0)', 'y=sin(x-2.5)'], 'right bottom');
 			plt.show();
 			
 			// create modal and plot
@@ -81,7 +86,7 @@
 			    plt_modal.plot(x,y,options[i]);
 			    x.map(function(d){ return d+0.5; });
 			}
-			plt_modal.legend(['sin1', 'sin2', 'sin3', 'sin4', 'sin5', 'sin6'], 'bottom right');
+			plt_modal.legend();
 			plt_modal.show();
 
 			// Scatter
@@ -144,6 +149,7 @@
 				var z = Math.exp(-(x*x+y*y)/2)/(2*Math.PI);
 				return z;
 			});
+			plt_gaussian_auto.colorbar();
 			plt_gaussian_auto.show();
 
 			var plt_gaussian = new Trinity('#gaussian');
@@ -151,6 +157,7 @@
 				var z = Math.exp(-(x*x+y*y)/2)/(2*Math.PI);
 				return z;
 			});
+			plt_gaussian.colorbar();
 			plt_gaussian.show();
 		</script>
 	</body>
