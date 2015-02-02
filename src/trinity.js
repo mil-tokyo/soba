@@ -2,6 +2,7 @@ var Trinity = {};
 
 (function($M){
 	Trinity = function(selector) {
+		this.selector = selector;
 		this.padding = {
 			left: 30,
 			right: 20,
@@ -83,6 +84,15 @@ var Trinity = {};
 		legend: function(titles, location) {
 			var obj = new Trinity.Legend(this.elements, titles, location ? location : null, this.padding);
 			this.elements.push(obj);
+		},
+		
+		colorbar: function() {
+			this.elements.forEach(function(d){
+				if (d instanceof Trinity.ContourDesicionFunction) {
+					var obj = new Trinity.Colorbar(d);
+					this.elements.push(obj);
+				}
+			}, this);
 		},
 
 		show: function() {
@@ -486,6 +496,14 @@ var Trinity = {};
 		y_range: function(){
 			return [this.y_min, this.y_max];
 		},
+		color: function(t){
+			return d3.hsl((1-t) * 360, 1, .5);
+		},
+		domain: function(){
+			if (this.mesh_min && this.mesh_max) {
+				return [this.mesh_min, this.mesh_max];
+			}
+		},
 		show: function(svg, xScale, yScale){
 			var x_min = this.x_min, x_max = this.x_max, y_min = this.y_min, y_max = this.y_max, decisionFunction = this.decision_func, args = this.args;
 			var x_bins = 100, y_bins = 100;
@@ -508,6 +526,7 @@ var Trinity = {};
 					ymap[ix][iy] = y;
 				}
 			}
+			this.mesh_min = mesh_min, this.mesh_max = mesh_max;
 
 			// Determine levels
 			var levels;
@@ -527,15 +546,6 @@ var Trinity = {};
 				*/
 			}
 
-			// Colors
-			var domain = new Array(6);
-			for (var i=0 ; i<6 ; i++) {
-				domain[i] = mesh_min + (mesh_max-mesh_min)*i/6;
-			}
-			var color = d3.scale.linear()
-			.domain(domain)
-			.range(["#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff"]);
-
 			function findPathInGrid(edges, level) {
 				var points = [];
 				for (var i=0; i<edges.length; i++) {
@@ -553,7 +563,7 @@ var Trinity = {};
 
 			var edges = new Array(4);
 			levels.forEach(function(level){
-				var level_color = color(level);
+				var level_color = this.color((level-mesh_min)/(mesh_max-mesh_min));
 				// Scan and draw lines
 				for (var ix=0 ; ix<x_bins-1 ; ix++) {
 					for (var iy=0 ; iy<y_bins-1 ; iy++) {
@@ -584,7 +594,7 @@ var Trinity = {};
 					}
 				}
 
-			});
+			}, this);
 		}
 	};
 	
@@ -649,6 +659,86 @@ var Trinity = {};
 				.attr('height', frame_height)
 				;
 		}
+	};
+	
+	Trinity.Colorbar = function(contour_obj, padding) {
+		this.contour = contour_obj;
+		this.padding = padding;
+		Trinity.Colorbar.count++;
+	}
+	Trinity.Colorbar.count = 0;
+	Trinity.Colorbar.prototype = {
+		show: function(svg) {
+			var svg_w = svg.attr('width'), svg_h = svg.attr('height');
+			
+			var w = 20, h = 300;
+			var x = svg_w - w, y = 100;
+			var base = svg.append('g')
+				.attr('transform', 'translate('+x+', '+y+')')
+			;
+
+			var n_divs = 10;
+			var color = this.contour.color;
+			
+			var scale = d3.scale.linear()
+				.domain([0,n_divs])
+				.range([0, h]);
+			
+			var defs = svg.append('svg:defs');
+			var id_prefix = 'cl_' + Trinity.Colorbar.count + '_';
+			for (var i=0 ; i<n_divs ; i++) {
+				var id = id_prefix + i;
+				var gradient = defs
+					.append("svg:linearGradient")
+					.attr("id", id)
+					.attr("x1", "0%")
+					.attr("y1", "0%")
+					.attr("x2", "0%")
+					.attr("y2", "100%")
+				;
+				gradient
+					.append('svg:stop')
+					.attr('offset', '0%')
+					.attr('stop-color', color(1-(i/n_divs)))
+					.attr('step-opacity', 1)
+				;
+				gradient
+					.append('svg:stop')
+					.attr('offset', '100%')
+					.attr('stop-color', color(1-((i+1)/n_divs)))
+					.attr('stop-opacity', 1)
+				;
+				
+				base.append('rect')
+					.attr('x', 0)
+					.attr('y', scale(i))
+					.attr('width', w)
+					.attr('height', h/n_divs)
+					.attr('fill', 'url(#'+id+')')
+				;
+			}
+			
+			var domain = this.contour.domain();
+			if (domain) {
+				var axis_scale = d3.scale.linear()
+					.domain(domain)
+					.range([h, 0]);
+
+				this.drawAxis(base, axis_scale);
+			}
+			
+		},
+		
+		drawAxis: function(base, scale) {
+			var axis = d3.svg.axis()
+				.scale(scale)
+				.ticks(5)
+				.orient('left');
+			
+			base.append('g')
+				.attr('class', 'colorbar-axis')
+				.call(axis);
+		},
 	};
 
 })(AgentSmith.Matrix);

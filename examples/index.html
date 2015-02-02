@@ -144,6 +144,7 @@
 				var z = Math.exp(-(x*x+y*y)/2)/(2*Math.PI);
 				return z;
 			});
+			plt_gaussian_auto.colorbar();
 			plt_gaussian_auto.show();
 
 			var plt_gaussian = new Trinity('#gaussian');
@@ -151,6 +152,7 @@
 				var z = Math.exp(-(x*x+y*y)/2)/(2*Math.PI);
 				return z;
 			});
+			plt_gaussian.colorbar();
 			plt_gaussian.show();
 		</script>
 	</body>
