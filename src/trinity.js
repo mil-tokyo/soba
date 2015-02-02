@@ -26,6 +26,7 @@ var Trinity = {};
 	Trinity.prototype = {
 		clf: function() {
 			this.elements = [];
+			this.surroundings = [];
 			this.svg.selectAll('*').remove();
 		},
 
@@ -90,9 +91,38 @@ var Trinity = {};
 			this.elements.forEach(function(d){
 				if (d instanceof Trinity.ContourDesicionFunction) {
 					var obj = new Trinity.Colorbar(d);
-					this.elements.push(obj);
+					var g = this._reserveSurrounding('right', 40);
+					this.surroundings.push([obj, g]);
+//					this.elements.push(obj);
 				}
 			}, this);
+		},
+		
+		_reserveSurrounding: function(location, width) {
+			var g = this.svg.append('g');
+			switch (location) {
+				case 'top':
+					break;
+					
+				case 'bottom':
+					break;
+					
+				case 'right':
+					var x = this.w - this.padding.right - width;
+					var y = this.padding.top;
+					g
+						.attr('transform', 'translate('+x+','+y+')')
+						.attr('width', width)
+						.attr('height', this.h - this.padding.top - this.padding.bottom)
+					;
+					this.padding.right += width;
+					break;
+					
+				case 'left':
+					break;
+			}
+			
+			return g;
 		},
 
 		show: function() {
@@ -126,6 +156,7 @@ var Trinity = {};
 				}
 			});
 			y_range[1] = [y_range[0], y_range[0] = y_range[1]][0]; // Swap
+			
 
 			if (this.xlabel_settings) {
 				var xlabel_fontsize = (this.xlabel_settings.options && this.xlabel_settings.options.fontsize) ? this.xlabel_settings.options.fontsize : 20;
@@ -148,6 +179,10 @@ var Trinity = {};
 				d.show(this.svg, xScale, yScale);
 			}, this);
 
+			this.surroundings.forEach(function(d){
+				d[0].show(d[1]);
+			}, this);
+			
 			this.drawAxis(xScale, yScale);
 			if (this.xlabel_settings) {
 				this._drawXLabel(this.xlabel_settings);
@@ -668,12 +703,12 @@ var Trinity = {};
 	}
 	Trinity.Colorbar.count = 0;
 	Trinity.Colorbar.prototype = {
-		show: function(svg) {
-			var svg_w = svg.attr('width'), svg_h = svg.attr('height');
+		show: function(g) {
+			var g_w = g.attr('width'), g_h = g.attr('height');
 			
-			var w = 20, h = 300;
-			var x = svg_w - w, y = 100;
-			var base = svg.append('g')
+			var w = g_w - 20, h = g_h - 80;
+			var x = 20, y = (g_h - h)/2;
+			var base = g.append('g')
 				.attr('transform', 'translate('+x+', '+y+')')
 			;
 
@@ -684,7 +719,7 @@ var Trinity = {};
 				.domain([0,n_divs])
 				.range([0, h]);
 			
-			var defs = svg.append('svg:defs');
+			var defs = g.append('svg:defs');
 			var id_prefix = 'cl_' + Trinity.Colorbar.count + '_';
 			for (var i=0 ; i<n_divs ; i++) {
 				var id = id_prefix + i;
