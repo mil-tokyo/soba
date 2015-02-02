@@ -95,9 +95,8 @@ var Trinity = {};
 			this.elements.forEach(function(d){
 				if (d instanceof Trinity.ContourDesicionFunction) {
 					var obj = new Trinity.Colorbar(d);
-					var g = this._reserveSurrounding('right', 40);
+					var g = this._reserveSurrounding('right', 50);
 					this.surroundings.push([obj, g]);
-//					this.elements.push(obj);
 				}
 			}, this);
 		},
@@ -744,7 +743,7 @@ var Trinity = {};
 		show: function(g) {
 			var g_w = g.attr('width'), g_h = g.attr('height');
 			
-			var w = g_w - 20, h = g_h - 80;
+			var w = g_w - 30, h = g_h - 80;
 			var x = 20, y = (g_h - h)/2;
 			var base = g.append('g')
 				.attr('transform', 'translate('+x+', '+y+')')
