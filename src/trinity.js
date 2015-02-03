@@ -533,8 +533,9 @@ var Trinity = {};
 			} else {
 				var n_levels = 10;
 				var levels = new Array(n_levels);
+				var level_min = mesh_min, level_max = mesh_max * 0.95;
 				for (var i=0 ; i<n_levels ; i++) {
-					levels[i] = mesh_min + (mesh_max-mesh_min)*i/(n_levels-1);
+					levels[i] = level_min + (level_max-level_min)*i/(n_levels-1);
 				}
 				/*
 				var levels = [];
@@ -611,6 +612,7 @@ var Trinity = {};
 								else if (valid_ind == 2) var iix = iix,   iiy = iiy+1; // Go down
 								else if (valid_ind == 3) var iix = iix-1, iiy = iiy;   // Go left
 								if (mark[iix][iiy]) break;
+								else if (iix < 0 || iiy < 0 || iix >= x_bins-1 || iiy >= y_bins ) break;
 								vertexes[0] = [xmap[iix  ][iiy  ], ymap[iix  ][iiy  ], mesh[iix  ][iiy  ]];
 								vertexes[1] = [xmap[iix+1][iiy  ], ymap[iix+1][iiy  ], mesh[iix+1][iiy  ]];
 								vertexes[2] = [xmap[iix+1][iiy+1], ymap[iix+1][iiy+1], mesh[iix+1][iiy+1]];
