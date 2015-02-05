@@ -234,6 +234,28 @@ var Trinity = {};
 	};
 	
 	/* Sub classes */
+	Trinity.Util = {
+		parseColorOption: function(option) {
+			if (!option) return 'blue';
+			var colors = {
+				b: 'blue',
+				g: 'green',
+				r: 'red',
+				c: 'cyan',
+				m: 'magenta',
+				y: 'yellow',
+				k: 'black',
+				w: 'white'
+			}
+			for (var key in colors) {
+				if (option.indexOf(key) >= 0) {
+					return colors[key];
+				}
+			}
+			return 'blue';
+		}
+	};
+
 	Trinity.Plot = function(x, y, option){
 		this.x = x;
 		this.y = y;
@@ -370,23 +392,7 @@ var Trinity = {};
 		},
 
 		_parseColor: function(option) {
-			if (!option) return 'blue';
-			var colors = {
-				b: 'blue',
-				g: 'green',
-				r: 'red',
-				c: 'cyan',
-				m: 'magenta',
-				y: 'yellow',
-				k: 'black',
-				w: 'white'
-			}
-			for (var key in colors) {
-				if (option.indexOf(key) >= 0) {
-					return colors[key];
-				}
-			}
-			return 'blue';
+			return Trinity.Util.parseColorOption(option);
 		},
 	};
 	
@@ -533,8 +539,9 @@ var Trinity = {};
 			} else {
 				var n_levels = 10;
 				var levels = new Array(n_levels);
+				var level_min = mesh_min, level_max = mesh_max * 0.95;
 				for (var i=0 ; i<n_levels ; i++) {
-					levels[i] = mesh_min + (mesh_max-mesh_min)*i/(n_levels-1);
+					levels[i] = level_min + (level_max-level_min)*i/(n_levels-1);
 				}
 				/*
 				var levels = [];
@@ -562,7 +569,7 @@ var Trinity = {};
 			}
 
 			var vertexes = new Array(4);
-			levels.forEach(function(level){
+			levels.forEach(function(level, level_i){
 				var mark = new Array(x_bins);
 				for (var ix=0 ; ix<x_bins ; ix++) {
 					mark[ix] = new Array(y_bins);
@@ -572,7 +579,11 @@ var Trinity = {};
 				}
 
 				var domain = this.domain();
-				var level_color = this.color((level-domain[0])/(domain[1]-domain[0]));
+				if (args.colors) {
+					var level_color = args.colors instanceof Array ? Trinity.Util.parseColorOption(args.colors[level_i % args.colors.length]) : Trinity.Util.parseColorOption(args.colors);
+				} else {
+					var level_color =  this.color((level-domain[0])/(domain[1]-domain[0]));
+				}
 				// Scan and draw lines
 				for (var ix=0 ; ix<x_bins-1 ; ix++) {
 					for (var iy=0 ; iy<y_bins-1 ; iy++) {
@@ -611,6 +622,7 @@ var Trinity = {};
 								else if (valid_ind == 2) var iix = iix,   iiy = iiy+1; // Go down
 								else if (valid_ind == 3) var iix = iix-1, iiy = iiy;   // Go left
 								if (mark[iix][iiy]) break;
+								else if (iix < 0 || iiy < 0 || iix >= x_bins-1 || iiy >= y_bins ) break;
 								vertexes[0] = [xmap[iix  ][iiy  ], ymap[iix  ][iiy  ], mesh[iix  ][iiy  ]];
 								vertexes[1] = [xmap[iix+1][iiy  ], ymap[iix+1][iiy  ], mesh[iix+1][iiy  ]];
 								vertexes[2] = [xmap[iix+1][iiy+1], ymap[iix+1][iiy+1], mesh[iix+1][iiy+1]];
@@ -647,12 +659,73 @@ var Trinity = {};
 							.attr('fill', 'none')
 							.attr('stroke', level_color)
 							.attr('stroke-width', 2);
+							if (args.linestyles) {
+								var linestyle;
+								if (args.linestyles instanceof Array) {
+									linestyle = args.linestyles[level_i % args.linestyles.length];
+								} else {
+									linestyle = args.linestyles;
+								}
+								if (linestyle == 'dashed') {
+									path.attr('stroke-dasharray', '3,3')
+								}
+							}
 						}
 					}
 				}
 
 			}, this);
-		}
+		},
+
+		drawLegend: function(g, title) {
+			var x_start=5, x_end = 35;
+			var y = -5;
+			var args = this.args;
+
+			var domain = this.domain();
+			this.levels.forEach(function(level, level_i){
+				if (level_i > 0) return; //Todo
+
+				if (args.colors) {
+					var level_color = args.colors instanceof Array ? Trinity.Util.parseColorOption(args.colors[level_i % args.colors.length]) : Trinity.Util.parseColorOption(args.colors);
+				} else {
+					var level_color =  this.color((level-domain[0])/(domain[1]-domain[0]));
+				}
+
+				var line = g.append('line')
+				.attr('x1', x_start)
+				.attr('y1', y)
+				.attr('x2', x_end)
+				.attr('y2', y)
+				.attr('stroke', level_color)
+				.attr('stroke-width', 2)
+				;
+				if (args.linestyles) {
+					var linestyle;
+					if (args.linestyles instanceof Array) {
+						linestyle = args.linestyles[level_i % args.linestyles.length];
+					} else {
+						linestyle = args.linestyles;
+					}
+					if (linestyle == 'dashed') {
+						line.attr('stroke-dasharray', '3,3')
+					}
+				}
+			}, this);
+			
+			if (title) {
+				var textarea = g.append('text').text(title)
+				.attr('font-size', 10)
+				.attr('x', x_end + 10)
+				.attr('y', 0)
+				;
+			
+				var bbox = textarea.node().getBBox();
+				return bbox.x + bbox.width;
+			} else {
+				return x_end;
+			}
+		},
 	};
 	
 	Trinity.Label = function(title, options, orientation){
