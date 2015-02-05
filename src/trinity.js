@@ -675,7 +675,57 @@ var Trinity = {};
 				}
 
 			}, this);
-		}
+		},
+
+		drawLegend: function(g, title) {
+			var x_start=5, x_end = 35;
+			var y = -5;
+			var args = this.args;
+
+			var domain = this.domain();
+			this.levels.forEach(function(level, level_i){
+				if (level_i > 0) return; //Todo
+
+				if (args.colors) {
+					var level_color = args.colors instanceof Array ? Trinity.Util.parseColorOption(args.colors[level_i % args.colors.length]) : Trinity.Util.parseColorOption(args.colors);
+				} else {
+					var level_color =  this.color((level-domain[0])/(domain[1]-domain[0]));
+				}
+
+				var line = g.append('line')
+				.attr('x1', x_start)
+				.attr('y1', y)
+				.attr('x2', x_end)
+				.attr('y2', y)
+				.attr('stroke', level_color)
+				.attr('stroke-width', 2)
+				;
+				if (args.linestyles) {
+					var linestyle;
+					if (args.linestyles instanceof Array) {
+						linestyle = args.linestyles[level_i % args.linestyles.length];
+					} else {
+						linestyle = args.linestyles;
+					}
+					if (linestyle == 'dashed') {
+						line.attr('stroke-dasharray', '3,3')
+					}
+				}
+			}, this);
+			
+			if (title) {
+				var textarea = g.append('text').text(title)
+				.attr('font-size', 10)
+				.attr('x', x_end + 10)
+				.attr('y', 0)
+				;
+			
+				var bbox = textarea.node().getBBox();
+				return bbox.x + bbox.width;
+			} else {
+				return x_end;
+			}
+		},
 	};
 	
 	Trinity.Label = function(title, options, orientation){
