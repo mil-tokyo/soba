@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Trinity - A visualization tool for agent_smith.js</title>
+		<title>Soba - A visualization tool for sushi.js</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width">
-		<script src="../agent_smith/src/agent_smith.js"></script>
-		<script src="../agent_smith/src/agent_smith_cl.js"></script>
+		<script src="../sushi/src/sushi.js"></script>
+		<script src="../sushi/src/sushi_cl.js"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-		<script src="../src/trinity.js"></script>
-		<script src="../src/trinity_modal.js"></script>
-		<link rel="stylesheet" href="../src/trinity.css">
-		<link rel="stylesheet" href="../src/trinity_modal.css">
+		<script src="../src/soba.js"></script>
+		<script src="../src/soba_modal.js"></script>
+		<link rel="stylesheet" href="../src/soba.css">
+		<link rel="stylesheet" href="../src/soba_modal.css">
 		<style>
 			#sine-curves {
 				border: solid 1px #000;
@@ -50,7 +50,7 @@
 			<div id="gaussian"></div>
 		</div>
 		<script>
-			$M = AgentSmith.Matrix;
+			$M = Sushi.Matrix;
 			
 			// Sine data
 			var x = new $M(60, 1);
@@ -63,7 +63,7 @@
 			});
 			
 			// plot
-			var plt = new Trinity('#sine-curves');
+			var plt = new Soba('#sine-curves');
 
 			var options = ['r-', 'b-.', 'k:', 'g--', 'co', 'mo-'];
 
@@ -78,7 +78,7 @@
 			plt.show();
 			
 			// create modal and plot
-			var plt_modal = Trinity.createModalPlot(640, 480, 'Sine curves');
+			var plt_modal = Soba.createModalPlot(640, 480, 'Sine curves');
 
 			var options = ['r-', 'b-.', 'k:', 'g--', 'co', 'mo-'];
 
@@ -106,13 +106,13 @@
 			]);
 			var x = $M.getCol(scatters,0);
 			var y = $M.getCol(scatters,1);
-			var plt_scatter = new Trinity('#scatter');
+			var plt_scatter = new Soba('#scatter');
 			plt_scatter.scatter(x,y);
 			plt_scatter.legend(['Scatter'])
 			plt_scatter.show();
 
 			// Scatter and line
-			var plt_scatter_line = new Trinity('#scatter-line');
+			var plt_scatter_line = new Soba('#scatter-line');
 			var scatter_data = $M.fromArray([
 					[ 1.4949318 ,  3.85848832],
 					[ 1.42613574,  0.0456529 ],
@@ -144,7 +144,7 @@
 			plt_scatter_line.show();
 
 			// Gaussian distribution
-			var plt_gaussian_auto = new Trinity('#gaussian_auto');
+			var plt_gaussian_auto = new Soba('#gaussian_auto');
 			plt_gaussian_auto.contourDesicionFunction(-3, 3, -3, 3, function(x,y){
 				var z = Math.exp(-(x*x+y*y)/2)/(2*Math.PI);
 				return z;
@@ -152,7 +152,7 @@
 			plt_gaussian_auto.colorbar();
 			plt_gaussian_auto.show();
 
-			var plt_gaussian = new Trinity('#gaussian');
+			var plt_gaussian = new Soba('#gaussian');
 			plt_gaussian.contourDesicionFunction(-3, 3, -3, 3, {levels: [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.], colors: ['m','b'], linestyles: ['dashed', 'solid']}, function(x,y){
 				var z = Math.exp(-(x*x+y*y)/2)/(2*Math.PI);
 				return z;

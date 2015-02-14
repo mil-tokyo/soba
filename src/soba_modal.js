@@ -1,17 +1,17 @@
 
-Trinity.createModal = function(width, height, title) {
+Soba.createModal = function(width, height, title) {
 	var counter = 0;
 	return function(width, height, title) {
 		if (typeof title === 'undefined') title = 'AgentSmithVisualizer';
 
-		var id = "trinity_modal_" + (counter++);
+		var id = "soba_modal_" + (counter++);
 		// create wrapper div and pallet div
 		var wrapper_div_id = id + '_wrapper_div';
 		var title_div_id = id + '_title';
 		var close_span_id = id + '_close';
 		$(document.body)
 			.append(
-				$('<div>').attr('id', wrapper_div_id).addClass('trinity_modal')
+				$('<div>').attr('id', wrapper_div_id).addClass('soba_modal')
 				.append(
 					$('<div>').attr('id', title_div_id).addClass('title').text(title)
 					.append(
@@ -54,8 +54,8 @@ Trinity.createModal = function(width, height, title) {
 	};
 }();
 
-Trinity.createModalPlot = function(width, height, title){
+Soba.createModalPlot = function(width, height, title){
 	if (typeof width === 'undefined') width = 320;
 	if (typeof height === 'undefined') height = 240;
-	return new Trinity("#" + Trinity.createModal(width, height, title));
+	return new Soba("#" + Soba.createModal(width, height, title));
 };
