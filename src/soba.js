@@ -913,4 +913,4 @@ var Soba = {};
 		},
 	};
 
-})(Sushi.Matrix);
+})(typeof Sushi === "undefined" ? null : Sushi.Matrix);
