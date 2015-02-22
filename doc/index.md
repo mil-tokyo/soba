@@ -73,3 +73,21 @@ var x=new Sushi.Matrix(...), y=new Sushi.Matrix(...), colors=new Sushi.Matrix(..
 x=...; y=...; colors=...;
 plt.scatter(x,y,colors);
 ```
+
+## contourDesicionFunction()
+
+## colorbar()
+
+## legend()
+
+## xlabel()
+
+## ylabel()
+
+## xlim()
+
+## ylim()
+
+## show()
+
+## clf()
