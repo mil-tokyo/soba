@@ -42,3 +42,76 @@ plt.plot(x,y,options);
 plt.show();
 ```
 Here, variables x and y represent the locations of the points and the styles of the points and the line can be controlled by options as a string.
+
+## Full simple example
+Here, the whole code is shown to plot one sine curve.
+```HTML
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple Soba sample</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="../src/soba.js"></script>
+        <link rel="stylesheet" href="../src/soba.css">
+    </head>
+    <body>
+        <div id="sine-curve" style="width: 640px; height: 480px;"></div>
+        <script>
+            // Sine data
+            var x_min=-3, x_max=3, nbins = 60;
+            var x = new Array(nbins), y = new Array(nbins);
+            for (var i=0 ; i<nbins ; i++) {
+                x[i] = x_min + i*(x_max-x_min)/(nbins-1);
+                y[i] = Math.sin(x[i]);
+            }
+
+            // plot
+            var plt = new Soba('#sine-curve');
+            plt.plot(x,y,'b:');
+            plt.show();
+        </script>
+    </body>
+</html>
+```
+
+# Integration with Sushi
+Soba can work with Sushi Javascript Library (https://github.com/mil-tokyo/sushi) which offers fast matrix calculation in javascript.
+Sushi's matrix class *Sushi.Matrix* can be passed to Soba's methods.
+For example, the sample code above can be written as following by using *Sushi.Matrix*:
+```HTML
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple Soba sample</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="../sushi/src/sushi.js"></script>   <!-- Include sushi.js -->
+        <script src="../src/soba.js"></script>
+        <link rel="stylesheet" href="../src/soba.css">
+    </head>
+    <body>
+        <div id="sine-curve" style="width: 640px; height: 480px;"></div>
+        <script>
+            // Sine data by Sushi.Matrix
+            var x_min=-3, x_max=3, nbins = 60;
+            var x = new Sushi.Matrix(nbins, 1);
+            x.setEach(function(i){
+                return x_min + i*(x_max-x_min)/(nbins-1);
+            });
+            var y = x.clone();
+            y.map(function(d){
+                return Math.sin(d);
+            });
+
+            // plot
+            var plt = new Soba('#sine-curve');
+            plt.plot(x,y,'b:');
+            plt.show();
+        </script>
+    </body>
+</html>
+```
+The plotting code is unchanged while the data passed to plot() method are changed to instances of *Sushi.Matrix* (and sushi.js is included).
