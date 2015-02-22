@@ -13,27 +13,12 @@
 		<link rel="stylesheet" href="../src/soba.css">
 		<link rel="stylesheet" href="../src/soba_modal.css">
 		<style>
-			#sine-curves {
+			#sine-curves,#sine-curves-without-sushi,#scatter,#scatter-without-sushi,#scatter-line {
 				border: solid 1px #000;
 				width: 640px;
 				height: 480px;
 			}
-			#scatter {
-				border: solid 1px #000;
-				width: 640px;
-				height: 480px;
-			}
-			#scatter-line {
-				border: solid 1px #000;
-				width: 640px;
-				height: 480px;
-			}
-			#gaussian_auto {
-				border: solid 1px #000;
-				width: 480px;
-				height: 480px;
-			}
-			#gaussian {
+			#gaussian_auto,#gaussian {
 				border: solid 1px #000;
 				width: 480px;
 				height: 480px;
@@ -44,7 +29,9 @@
 	<body>
 		<div>
 			<div id="sine-curves"></div>
+			<div id="sine-curves-without-sushi"></div>
 			<div id="scatter"></div>
+			<div id="scatter-without-sushi"></div>
 			<div id="scatter-line"></div>
 			<div id="gaussian_auto"></div>
 			<div id="gaussian"></div>
@@ -76,6 +63,28 @@
 			plt.ylabel('y');
 			plt.legend(['y=sin(x)', 'y=sin(x-0.5)', 'y=sin(x-1.0)', 'y=sin(x-1.5)', 'y=sin(x-2.0)', 'y=sin(x-2.5)'], 'right bottom');
 			plt.show();
+            
+            // sine-curves without sushi
+			var plt = new Soba('#sine-curves-without-sushi');
+
+			var options = ['r-', 'b-.', 'k:', 'g--', 'co', 'mo-'];
+
+            var nbins = 60;
+            var xarr = new Array(nbins);
+            var yarr = new Array(nbins);
+            for (var i=0 ; i<nbins ; i++) {
+                xarr[i] = -3 + i*0.1;
+                yarr[i] = Math.sin(xarr[i]);
+            }
+			for (var i=0 ; i<6 ; i++) {
+			    plt.plot(xarr,yarr,options[i]);
+                xarr = xarr.map(function(_x){return _x+0.5;});
+			}
+
+			plt.xlabel('x');
+			plt.ylabel('y');
+			plt.legend(['y=sin(x)', 'y=sin(x-0.5)', 'y=sin(x-1.0)', 'y=sin(x-1.5)', 'y=sin(x-2.0)', 'y=sin(x-2.5)'], 'right bottom');
+			plt.show();
 			
 			// create modal and plot
 			var plt_modal = Soba.createModalPlot(640, 480, 'Sine curves');
@@ -90,7 +99,7 @@
 			plt_modal.show();
 
 			// Scatter
-			var scatters = $M.fromArray([
+            var scatters_arr = [
 				[1, 1],
 				[0, 1],
 				[1, 1],
@@ -103,13 +112,26 @@
 				[13, 10],
 				[10, 7],
 				[10, 8],
-			]);
+			];
+			var scatters = $M.fromArray(scatters_arr);
 			var x = $M.getCol(scatters,0);
 			var y = $M.getCol(scatters,1);
 			var plt_scatter = new Soba('#scatter');
 			plt_scatter.scatter(x,y);
 			plt_scatter.legend(['Scatter'])
 			plt_scatter.show();
+            
+            // Scatter without sushi
+            var sc_xarr = new Array(), sc_yarr = new Array();
+            scatters_arr.forEach(function(d){
+                sc_xarr.push(d[0]); sc_yarr.push(d[1]);
+            });
+            console.log(sc_xarr);
+            console.log(sc_yarr);
+            var plt_scatter_without_sushi = new Soba("#scatter-without-sushi");
+            plt_scatter_without_sushi.scatter(sc_xarr, sc_yarr);
+            plt_scatter_without_sushi.legend(['Scatter']);
+            plt_scatter_without_sushi.show();
 
 			// Scatter and line
 			var plt_scatter_line = new Soba('#scatter-line');
