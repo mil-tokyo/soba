@@ -54,3 +54,22 @@ This method plots continuous points and connects those points by line if a speci
 var x=..., y=...;
 plt.plot(x,y,'k--');
 ```
+
+## scatter()
+### Syntax
+```javascript
+plt.scatter(x, y, colors);
+```
+* *x* : 1-dimentional Array or n-by-1 shaped Sushi.Matrix object which represents x-coordinates of data points
+* *y* : 1-dimentional Array or n-by-1 shaped Sushi.Matrix object which represents y-coordinates of data points
+* *colors* : n-by-1 shaped Sushi.Matrix object which represents colors of data points. The elements of this matrix are integer (1,2,3,...).
+
+### Description
+This method make a scatter plot of x vs y. Colors of those are controlled by *colors* argument.
+
+### Sample
+```javascript
+var x=new Sushi.Matrix(...), y=new Sushi.Matrix(...), colors=new Sushi.Matrix(...);
+x=...; y=...; colors=...;
+plt.scatter(x,y,colors);
+```
