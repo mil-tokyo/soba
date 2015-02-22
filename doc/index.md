@@ -42,3 +42,41 @@ plt.plot(x,y,options);
 plt.show();
 ```
 Here, variables x and y represent the locations of the points and the styles of the points and the line can be controlled by options as a string.
+
+## Full simple example
+Here, the whole code is shown to plot one sine curve.
+```HTML
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Simple Soba sample</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="../sushi/src/sushi.js"></script>
+        <script src="../sushi/src/sushi_cl.js"></script>
+        <script src="../src/soba.js"></script>
+        <link rel="stylesheet" href="../src/soba.css">
+    </head>
+    <body>
+        <div id="sine-curve" style="width: 640px; height: 480px;"></div>
+        <script>
+             // Sine data
+             $M = Sushi.Matrix;
+             var x = new $M(60, 1);
+             x.setEach(function(i){
+                 return -3 + i*0.1;
+             });
+             var y = x.clone();
+             y.map(function(d){
+                 return Math.sin(d);
+             });
+
+             // plot
+             var plt = new Soba('#sine-curve');
+             plt.plot(x,y,'b:');
+             plt.show();
+        </script>
+    </body>
+</html>
+```
