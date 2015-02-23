@@ -54,6 +54,7 @@ This method plots continuous points and connects those points by line if a speci
 var x=..., y=...;
 plt.plot(x,y,'k--');
 ```
+Please see also http://mil-tokyo.github.io/soba/examples/index.html#plot
 
 ## scatter()
 ### Syntax
@@ -73,6 +74,7 @@ var x=new Sushi.Matrix(...), y=new Sushi.Matrix(...), colors=new Sushi.Matrix(..
 x=...; y=...; colors=...;
 plt.scatter(x,y,colors);
 ```
+Please see also http://mil-tokyo.github.io/soba/examples/index.html#scatter
 
 ## contourDesicionFunction()
 ### Syntax
@@ -103,6 +105,7 @@ plt.contourDesicionFunction(-3, 3, -3, 3, {levels: [0.0, 0.01, 0.02, 0.03, 0.04,
   return z;
 });
 ```
+Please see also http://mil-tokyo.github.io/soba/examples/index.html#contour-df
 
 ## xlim()
 ### Syntax
