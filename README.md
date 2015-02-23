@@ -92,6 +92,9 @@ http://mil-tokyo.github.io/soba/examples/simple.html
 Soba can work with Sushi Javascript Library (https://github.com/mil-tokyo/sushi) which offers fast matrix calculation in javascript.
 Sushi's matrix class *Sushi.Matrix* can be passed to Soba's methods.
 For example, the sample code above can be written as following by using *Sushi.Matrix*:
+
+http://mil-tokyo.github.io/soba/examples/simple_sushi.html
+
 ```HTML
 <!DOCTYPE html>
 <html>
