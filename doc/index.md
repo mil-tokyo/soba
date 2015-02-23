@@ -120,12 +120,40 @@ Place a legend in the figure.
 plt.legend(['label1', 'label2', ...], "bottom left");
 ```
 
+## xlabel()
+### Syntax
+```javascript
+plt.xlabel(label, options);
+```
+* *label* : String representing *x* axis label
+* *options* : Object specifying some options like {option_name1: value1, option_name2: value2, ...}.Supported options are followings:
+
+| Option name | Description   |
+| ----------- |--------|
+| fontsize    | Integer specifying the font size|
+
+### Sample
+```javascript
+plt.xlabel('x');
+```
+
+## ylabel()
+### Syntax
+```javascript
+plt.ylabel(label, options);
+```
+(Arguments are same to ones of xlabel())
+
+### Description
+Set the y axis label.
+
+### Sample
+```javascript
+plt.ylabel('y');
+```
 
 ## colorbar()
 
-## xlabel()
-
-## ylabel()
 
 ## xlim()
 
