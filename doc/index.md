@@ -198,5 +198,29 @@ plt.colorbar();
 ```
 
 ## show()
+### Syntax
+```javascript
+plt.show();
+```
+
+### Description
+Display a figure. Nothing is drawn until this method is called. This method MUST be called to draw a figure.
+
+### Sample
+```javascript
+plt.show();
+```
 
 ## clf()
+### Syntax
+```javascript
+plt.clf();
+```
+
+### Description
+Clear all figures before show() is called.
+
+### Sample
+```javascript
+plt.clf();
+```
