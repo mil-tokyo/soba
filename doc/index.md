@@ -104,9 +104,24 @@ plt.contourDesicionFunction(-3, 3, -3, 3, {levels: [0.0, 0.01, 0.02, 0.03, 0.04,
 });
 ```
 
-## colorbar()
-
 ## legend()
+### Syntax
+```javascript
+plt.legend(labels, location);
+```
+* *labels* : Array containing titles of figure elements
+* *location (default:"upper right")* : String to specify the legend location. 'right', 'left, 'upper' and 'bottom' are supported. These can be combined such as 'bottom left'.
+
+### Description
+Place a legend in the figure.
+
+### Sample
+```javascript
+plt.legend(['label1', 'label2', ...], "bottom left");
+```
+
+
+## colorbar()
 
 ## xlabel()
 
