@@ -96,7 +96,7 @@ plt.contourDesicionFunction(x_min, x_max, y_min, y_max, options, callback);
 * *callback* : Callback function that takes 2 arguments *x* and *y* and returns function value to draw contour.
 
 ### Description
-This method plot contours of a function that specified by *callback* function. The plotting area is specified by *x_min*, *x_max*, *y_min* and *y_max* and *callback* is called over lattice points in the plotting area to assign function values to each point.
+This method plots contours of a function that specified by *callback* function. The plotting area is specified by *x_min*, *x_max*, *y_min* and *y_max* and *callback* is called over lattice points in the plotting area to assign function values to each point.
 
 ### Sample
 ```javascript
