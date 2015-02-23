@@ -48,12 +48,12 @@
             Usage of Soba is similar to <a href="http://matplotlib.org/">matplotlib</a> (a major graph plotting library in python). You can draw graphs easily with simple codes.
         </p>
 
-<pre><code>var plt = new Soba('#sine-curves');	// Create Soba instance attached to a DOM object
-plt.plot(x, y, 'b-');			// Plot data points (x,y) on 2D space
-plt.xlabel('x values');			// Set label for x axis
-plt.ylabel('y values');			// Set label for y axis
+<pre><code>var plt = new Soba('#fig');	  // Create Soba instance attached to a DOM object
+plt.plot(x, y, 'b-');			    // Plot data points (x,y) on 2D space
+plt.xlabel('x values');			  // Set label for x axis
+plt.ylabel('y values');			  // Set label for y axis
 plt.legend(['Some data']);		// Create legend
-plt.show();				// Show graph
+plt.show();										// Show graph
 </code></pre>
         
         <h3>
