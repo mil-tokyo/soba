@@ -33,7 +33,7 @@ plt.plot(x, y, options);
 | --        | dashed line style   |
 | -.        | dash-dot line style |
 | :         | dotted line style   |
-| o         | dotted line style   |
+| o         | circle marker       |
 
 | Character | Color   |
 | --------- |--------:|
