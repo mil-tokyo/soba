@@ -446,7 +446,7 @@ var Soba = {};
 					return yScale( ($M && y instanceof $M) ? y.get(i,0) : y[i]);
 				})
 				.attr('fill', function(d, i){
-					return color instanceof $M ? color_list(color.get(i,0)) : color_list(1);
+					return ($M && color instanceof $M) ? color_list(color.get(i,0)) : color_list(1);
 				})
 				.attr('r', 2);
 		},
@@ -458,7 +458,7 @@ var Soba = {};
 			var y = -3;
 
 			var legend_color_list = [];
-			if (color instanceof $M) {
+			if ($M && color instanceof $M) {
 				var color_ = $M.toArray(color.t())[0];
 				var legend_color_list = color_.filter(function (x, i, self) { // Unique array
 					return self.indexOf(x) === i;

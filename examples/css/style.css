@@ -1,0 +1,17 @@
+.content-wrapper{
+	clear: both;
+}
+.content-wrapper h3 {
+	padding: 5px;
+	background-color: #eee;
+	border: 1px solid #ddd;
+}
+.figure{
+    border: solid 1px #000;
+    width: 640px;
+    height: 480px;
+    float: left;
+}
+.source{
+	float: left;
+}
