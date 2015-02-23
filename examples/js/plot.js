@@ -7,7 +7,7 @@ for (var i=0 ; i<nbins ; i++) {
 }
 
 // plot
-var plt = new Soba('#sine-curve');
+var plt = new Soba('#plot');
 plt.plot(x,y,'b:');
 plt.xlabel('x');
 plt.ylabel('y');
