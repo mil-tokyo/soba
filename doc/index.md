@@ -75,6 +75,34 @@ plt.scatter(x,y,colors);
 ```
 
 ## contourDesicionFunction()
+### Syntax
+```javascript
+plt.contourDesicionFunction(x_min, x_max, y_min, y_max, callback);
+plt.contourDesicionFunction(x_min, x_max, y_min, y_max, options, callback);
+```
+* *x_min* : x-coordinate of the left edge of the plotting area
+* *x_max* : x-coordinate of the right edge of the plotting area
+* *y_min* : y-coordinate of the botton edge of the plotting area
+* *y_max* : y-coordinate of the top edge of the plotting area
+* *options* : Object specifying some options like {option_name1: value1, option_name2: value2, ...}.Supported options are followings:
+
+| Option name | Description   |
+| ----------- |--------|
+| levels      | Array containing the contour levels. If not provided, the contour levels are determined automatically.|
+| colors      | Array containing the colors of contour lines. Colors are specified by the aliases described above(plot()). If not provided, colors are determined automatically. If the length of this array is shorter than that of levels, specified colors are repeated. |
+| linestyles  | Array containing the line styles of contour lines. Line styles are specified by strings. 'solid' and 'dashed' are supported. If not provided, all lines are solid style. If the length of this array is shorter than that of levels, specified line styles are repeated.|
+* *callback* : Callback function that has 2 arguments *x* and *y* and returns function value to draw contour.
+
+### Description
+This method plot contours of a function that specified by *callback* function. The plotting area is specified by *x_min*, *x_max*, *y_min* and *y_max* and *callback* is called over lattice points in the plotting area to assign function values to each point.
+
+### Sample
+```javascript
+plt.contourDesicionFunction(-3, 3, -3, 3, {levels: [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.], colors: ['m','b'], linestyles: ['dashed', 'solid']}, function(x,y){
+  var z = Math.exp(-(x*x+y*y)/2)/(2*Math.PI); // Gaussian distribution
+  return z;
+});
+```
 
 ## colorbar()
 
