@@ -37,12 +37,20 @@ var Soba = {};
 		},
 
 		plot: function(x, y, option) {
-			var obj = new Soba.Plot(x.clone(), y.clone(), option);
+			var obj = new Soba.Plot(
+				($M && x instanceof $M) ? x.clone() : x,
+				($M && y instanceof $M) ? y.clone() : y,
+				option
+			);
 			this.elements.push(obj);
 		},
 
 		scatter: function(x, y, color) {
-			var obj = new Soba.Scatter(x.clone(), y.clone(), color instanceof $M ? color.clone() : color);
+			var obj = new Soba.Scatter(
+				($M && x instanceof $M) ? x.clone() : x,
+				($M && y instanceof $M) ? y.clone() : y,
+				($M && color instanceof $M) ? color.clone() : color
+			);
 			this.elements.push(obj);
 		},
 
@@ -235,6 +243,12 @@ var Soba = {};
 	
 	/* Sub classes */
 	Soba.Util = {
+		arrayMax: function(arr) {
+			return Math.max.apply(null, arr);
+		},
+		arrayMin: function(arr) {
+			return Math.min.apply(null, arr);
+		},
 		parseColorOption: function(option) {
 			if (!option) return 'blue';
 			var colors = {
@@ -264,20 +278,20 @@ var Soba = {};
 	Soba.Plot.prototype = {
 		x_range: function(){
 			if (!this._x_range) {
-				this._x_range = [$M.min(this.x), $M.max(this.x)];
+				this._x_range = ($M && this.x instanceof $M) ? [$M.min(this.x), $M.max(this.x)] : [Soba.Util.arrayMin(this.x), Soba.Util.arrayMax(this.x)];
 			}
 			return this._x_range;
 		},
 		y_range: function(){
 			if (!this._y_range){
-				this._y_range = [$M.min(this.y), $M.max(this.y)];
+				this._y_range = ($M && this.y instanceof $M) ? [$M.min(this.y), $M.max(this.y)] : [Soba.Util.arrayMin(this.y), Soba.Util.arrayMax(this.y)];
 			}
 			return this._y_range;
 		},
 		show: function(svg, xScale, yScale){
 			var x = this.x, y = this.y, option = this.option;
 			option = option ? option : '';
-			var xArray = $M.toArray(x);
+			var xArray = ($M && x instanceof $M) ? $M.toArray(x) : x;
 
 			var style = this._parsePlotOption(option);
 			if (style.circle) {
@@ -289,7 +303,7 @@ var Soba = {};
 						return xScale(d);
 					})
 					.attr('cy', function(d, i){
-						return yScale(y.get(i,0));
+						return yScale( ($M && y instanceof $M) ? y.get(i,0) : y[i] );
 					})
 					.attr('fill', style.circle.fill)
 					.attr('r', 2);
@@ -300,7 +314,7 @@ var Soba = {};
 						return xScale(d);
 					})
 					.y(function(d, i){
-						return yScale(y.get(i,0));
+						return yScale( ($M && y instanceof $M) ? y.get(i,0) : y[i] );
 					})
 					.interpolate('linear');
 
@@ -404,13 +418,13 @@ var Soba = {};
 	Soba.Scatter.prototype = {
 		x_range: function(){
 			if (!this._x_range) {
-				this._x_range = [$M.min(this.x), $M.max(this.x)];
+				this._x_range = ($M && this.x instanceof $M) ? [$M.min(this.x), $M.max(this.x)] : [Soba.Util.arrayMin(this.x), Soba.Util.arrayMax(this.x)];
 			}
 			return this._x_range;
 		},
 		y_range: function(){
 			if (!this._y_range){
-				this._y_range = [$M.min(this.y), $M.max(this.y)];
+				this._y_range = ($M && this.y instanceof $M) ? [$M.min(this.y), $M.max(this.y)] : [Soba.Util.arrayMin(this.y), Soba.Util.arrayMax(this.y)];
 			}
 			return this._y_range;
 		},
@@ -419,7 +433,7 @@ var Soba = {};
 
 			var color_list = d3.scale.category10();
 
-			var xArray = $M.toArray(x);
+			var xArray = ($M && x instanceof $M) ? $M.toArray(x) : x;
 
 			svg.append('g').selectAll("circle")
 				.data(xArray)
@@ -429,10 +443,10 @@ var Soba = {};
 					return xScale(d);
 				})
 				.attr('cy', function(d, i){
-					return yScale(y.get(i,0));
+					return yScale( ($M && y instanceof $M) ? y.get(i,0) : y[i]);
 				})
 				.attr('fill', function(d, i){
-					return color instanceof $M ? color_list(color.get(i,0)) : color_list(1);
+					return ($M && color instanceof $M) ? color_list(color.get(i,0)) : color_list(1);
 				})
 				.attr('r', 2);
 		},
@@ -444,7 +458,7 @@ var Soba = {};
 			var y = -3;
 
 			var legend_color_list = [];
-			if (color instanceof $M) {
+			if ($M && color instanceof $M) {
 				var color_ = $M.toArray(color.t())[0];
 				var legend_color_list = color_.filter(function (x, i, self) { // Unique array
 					return self.indexOf(x) === i;
@@ -899,4 +913,4 @@ var Soba = {};
 		},
 	};
 
-})(Sushi.Matrix);
+})(typeof Sushi === "undefined" ? null : Sushi.Matrix);
