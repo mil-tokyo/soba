@@ -127,4 +127,4 @@ For example, the sample code above can be written as following by using *Sushi.M
 The plotting code is unchanged while the data passed to plot() method are changed to instances of *Sushi.Matrix* (and sushi.js is included).
 
 # Learn more
-Please see the documents [here](https://github.com/mil-tokyo/soba/blob/doc/doc/index.md). You can get more detailed information such as method references.
+Please see the documents [here](https://github.com/mil-tokyo/soba/blob/master/doc/index.md). You can get more detailed information such as method references.
