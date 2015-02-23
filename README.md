@@ -44,7 +44,7 @@ var plt = new Soba('#figure1');
 
 Soba uses d3.js to handle SVG objects.
 
-## Draw Graph on the figure
+## Draw graph on the figure
 Now, let's draw graphs!
 For example, plot() plots continuous points and connects those points by line if a specific option given like this:
 ```javascript
@@ -55,6 +55,8 @@ Here, variables x and y represent the locations of the points and the styles of 
 
 ## Full simple example
 Here, the whole code is shown to plot one sine curve.
+
+http://mil-tokyo.github.io/soba/examples/simple.html
 ```HTML
 <!DOCTYPE html>
 <html>
