@@ -184,6 +184,18 @@ plt.ylabel('y');
 ```
 
 ## colorbar()
+### Syntax
+```javascript
+plt.colorbar();
+```
+
+### Description
+Add a colorbar to a plot correspoinding a contour.
+
+### Sample
+```javascript
+plt.colorbar();
+```
 
 ## show()
 
