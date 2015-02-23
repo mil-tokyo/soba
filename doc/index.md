@@ -93,7 +93,7 @@ plt.contourDesicionFunction(x_min, x_max, y_min, y_max, options, callback);
 | levels      | Array containing the contour levels. If not provided, the contour levels are determined automatically.|
 | colors      | Array containing the colors of contour lines. Colors are specified by the aliases described above(plot()). If not provided, colors are determined automatically. If the length of this array is shorter than that of levels, specified colors are repeated. |
 | linestyles  | Array containing the line styles of contour lines. Line styles are specified by strings. 'solid' and 'dashed' are supported. If not provided, all lines are solid style. If the length of this array is shorter than that of levels, specified line styles are repeated.|
-* *callback* : Callback function that has 2 arguments *x* and *y* and returns function value to draw contour.
+* *callback* : Callback function that takes 2 arguments *x* and *y* and returns function value to draw contour.
 
 ### Description
 This method plot contours of a function that specified by *callback* function. The plotting area is specified by *x_min*, *x_max*, *y_min* and *y_max* and *callback* is called over lattice points in the plotting area to assign function values to each point.
