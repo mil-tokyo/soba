@@ -104,6 +104,37 @@ plt.contourDesicionFunction(-3, 3, -3, 3, {levels: [0.0, 0.01, 0.02, 0.03, 0.04,
 });
 ```
 
+## xlim()
+### Syntax
+```javascript
+plt.xlim([x_min, x_max]);
+```
+* *x_min (default: null)* : A number specifying the minimum of *x* axis. If null is given, it is determined automatically.
+* *x_max (default: null)* : A number specifying the maximum of *x* axis. If null is given, it is determined automatically.
+
+### Description
+Set the *x* limits.
+
+### Sample
+```javascript
+plt.xlim([0, null]);
+```
+
+## ylim()
+### Syntax
+```javascript
+plt.ylim([y_min, y_max]);
+```
+(Arguments are similar to xlim())
+
+### Description
+Set the *y* limits.
+
+### Sample
+```javascript
+plt.ylim([0, null]);
+```
+
 ## legend()
 ### Syntax
 ```javascript
@@ -142,7 +173,7 @@ plt.xlabel('x');
 ```javascript
 plt.ylabel(label, options);
 ```
-(Arguments are same to ones of xlabel())
+(Arguments are same to xlabel())
 
 ### Description
 Set the y axis label.
@@ -153,11 +184,6 @@ plt.ylabel('y');
 ```
 
 ## colorbar()
-
-
-## xlim()
-
-## ylim()
 
 ## show()
 
