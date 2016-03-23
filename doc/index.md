@@ -8,7 +8,7 @@ var plt = new Soba(selector);
 * *selector* : CSS selector to specify a DOM object which contains the figure drawn by the Soba instance
 
 ### Description
-By constructor, Soba class creates and initialize a SVG object to draw figure in a DOM object which is specified by *selector*.
+By constructor, Soba class creates and initializes a SVG object to draw figure in a DOM object which is specified by *selector*.
 
 ### Sample
 ```HTML
@@ -25,7 +25,7 @@ plt.plot(x, y, options);
 ```
 * *x* : 1-dimentional Array or n-by-1 shaped Sushi.Matrix object which represents x-coordinates of data points
 * *y* : 1-dimentional Array or n-by-1 shaped Sushi.Matrix object which represents y-coordinates of data points
-* *options (default:"b-")* : String to specify styles of points and line. Supported styles are following. Combination of these characters representes the style.
+* *options (default:"b-")* : String to specify styles of points and line. Supported styles are following. Combination of these characters represents the style.
 
 | Character | Line Style          |
 | --------- |--------------------:|
@@ -47,7 +47,7 @@ plt.plot(x, y, options);
 | w         | white   |
 
 ### Description
-This method plots continuous points and connects those points by line if a specific option given. The styles of points and line are controlled by *options* argument.
+This method plots continuous points and connects those points by line if a specific option is given. The styles of points and line are controlled by *options* argument.
 
 ### Sample
 ```javascript
@@ -66,7 +66,7 @@ plt.scatter(x, y, colors);
 * *colors* : n-by-1 shaped Sushi.Matrix object which represents colors of data points. The elements of this matrix are integer (1,2,3,...).
 
 ### Description
-This method make a scatter plot of x vs y. Colors of those are controlled by *colors* argument.
+This method makes a scatter plot of x vs y. Colors of those are controlled by *colors* argument.
 
 ### Sample
 ```javascript
@@ -84,9 +84,9 @@ plt.contourDesicionFunction(x_min, x_max, y_min, y_max, options, callback);
 ```
 * *x_min* : x-coordinate of the left edge of the plotting area
 * *x_max* : x-coordinate of the right edge of the plotting area
-* *y_min* : y-coordinate of the botton edge of the plotting area
+* *y_min* : y-coordinate of the bottom edge of the plotting area
 * *y_max* : y-coordinate of the top edge of the plotting area
-* *options* : Object specifying some options like {option_name1: value1, option_name2: value2, ...}.Supported options are followings:
+* *options* : Object specifying some options like {option_name1: value1, option_name2: value2, ...}. Supported options are following:
 
 | Option name | Description   |
 | ----------- |--------|
@@ -96,7 +96,7 @@ plt.contourDesicionFunction(x_min, x_max, y_min, y_max, options, callback);
 * *callback* : Callback function that takes 2 arguments *x* and *y* and returns function value to draw contour.
 
 ### Description
-This method plots contours of a function that specified by *callback* function. The plotting area is specified by *x_min*, *x_max*, *y_min* and *y_max* and *callback* is called over lattice points in the plotting area to assign function values to each point.
+This method plots contours of a function specified by *callback* function. The plotting area is specified by *x_min*, *x_max*, *y_min* and *y_max* and *callback* is called over lattice points in the plotting area to assign function values to each point.
 
 ### Sample
 ```javascript
@@ -112,11 +112,11 @@ Please see also http://mil-tokyo.github.io/soba/examples/index.html#contour-df
 ```javascript
 plt.xlim([x_min, x_max]);
 ```
-* *x_min (default: null)* : A number specifying the minimum of *x* axis. If null is given, it is determined automatically.
-* *x_max (default: null)* : A number specifying the maximum of *x* axis. If null is given, it is determined automatically.
+* *x_min (default: null)* : A number specifying the minimum of *x* axis. If not specified, it is determined automatically.
+* *x_max (default: null)* : A number specifying the maximum of *x* axis. If not specified, it is determined automatically.
 
 ### Description
-Set the *x* limits.
+Set the limits for *x*.
 
 ### Sample
 ```javascript
@@ -131,7 +131,7 @@ plt.ylim([y_min, y_max]);
 (Arguments are similar to xlim())
 
 ### Description
-Set the *y* limits.
+Set the limits for *y*.
 
 ### Sample
 ```javascript
@@ -160,11 +160,14 @@ plt.legend(['label1', 'label2', ...], "bottom left");
 plt.xlabel(label, options);
 ```
 * *label* : String representing *x* axis label
-* *options* : Object specifying some options like {option_name1: value1, option_name2: value2, ...}.Supported options are followings:
+* *options* : Object specifying some options like {option_name1: value1, option_name2: value2, ...}. Supported options are following:
 
 | Option name | Description   |
 | ----------- |--------|
 | fontsize    | Integer specifying the font size|
+
+### Description
+Set the x axis label.
 
 ### Sample
 ```javascript
@@ -176,7 +179,7 @@ plt.xlabel('x');
 ```javascript
 plt.ylabel(label, options);
 ```
-(Arguments are same to xlabel())
+(Arguments are the same as xlabel())
 
 ### Description
 Set the y axis label.
@@ -193,7 +196,7 @@ plt.colorbar();
 ```
 
 ### Description
-Add a colorbar to a plot correspoinding a contour.
+Add a colorbar to a plot corresponding to a contour.
 
 ### Sample
 ```javascript
