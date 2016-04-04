@@ -1,3 +1,25 @@
+// The MIT License (MIT)
+
+// Copyright (c) 2014 Machine Intelligence Laboratory (The University of Tokyo)
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 var Soba = {};
 
 (function($M){
@@ -63,7 +85,7 @@ var Soba = {};
 				decision_func = func_;
 				var args = func;
 			}
-			
+
 			var obj = new Soba.ContourDesicionFunction(x_min, x_max, y_min, y_max, decision_func, args);
 			this.elements.push(obj);
 		},
@@ -98,7 +120,7 @@ var Soba = {};
 			var obj = new Soba.Legend(this.elements, titles, location ? location : null, this.padding, this.margin);
 			this.elements.push(obj);
 		},
-		
+
 		colorbar: function() {
 			this.elements.forEach(function(d){
 				if (d instanceof Soba.ContourDesicionFunction) {
@@ -108,13 +130,13 @@ var Soba = {};
 				}
 			}, this);
 		},
-		
+
 		_reserveSurrounding: function(location, width) {
 			var g = this.svg.append('g');
 			switch (location) {
 				case 'top':
 					break;
-					
+
 				case 'bottom':
 					var x = this.margin.left;
 					var y = this.h - this.margin.bottom - width;
@@ -125,7 +147,7 @@ var Soba = {};
 					;
 					this.margin.bottom += width;
 					break;
-					
+
 				case 'right':
 					var x = this.w - this.margin.right - width;
 					var y = this.margin.top;
@@ -136,7 +158,7 @@ var Soba = {};
 					;
 					this.margin.right += width;
 					break;
-					
+
 				case 'left':
 					var x = this.margin.left;
 					var y = this.margin.top;
@@ -148,7 +170,7 @@ var Soba = {};
 					this.margin.left += width;
 					break;
 			}
-			
+
 			return g;
 		},
 
@@ -199,7 +221,7 @@ var Soba = {};
 			this.surroundings.forEach(function(d){
 				d[0].show(d[1]);
 			}, this);
-			
+
 			this.drawAxis(xScale, yScale);
 			if (this.xlabel_settings) {
 				this._drawXLabel(this.xlabel_settings);
@@ -208,7 +230,7 @@ var Soba = {};
 				this._drawYLabel(this.ylabel_settings);
 			}
 		},
-		
+
 		drawAxis: function(xScale, yScale) {
 			var xAxis = d3.svg.axis()
 				.scale(xScale)
@@ -240,7 +262,7 @@ var Soba = {};
 		}
 		return null;
 	};
-	
+
 	/* Sub classes */
 	Soba.Util = {
 		arrayMax: function(arr) {
@@ -330,7 +352,7 @@ var Soba = {};
 				}
 			}
 		},
-		
+
 		drawLegend: function(g, title) {
 			var style = this._parsePlotOption(this.option);
 			var x_start=5, x_end = 35;
@@ -358,21 +380,21 @@ var Soba = {};
 					line.attr('stroke-dasharray', style.line.stroke_dasharray);
 				}
 			}
-			
+
 			if (title) {
 				var textarea = g.append('text').text(title)
 				.attr('font-size', 10)
 				.attr('x', x_end + 10)
 				.attr('y', 0)
 				;
-			
+
 				var bbox = textarea.node().getBBox();
 				return bbox.x + bbox.width;
 			} else {
 				return x_end;
 			}
 		},
-		
+
 		_parsePlotOption: function(option) {
 			var res = {
 				circle: null,
@@ -409,7 +431,7 @@ var Soba = {};
 			return Soba.Util.parseColorOption(option);
 		},
 	};
-	
+
 	Soba.Scatter = function(x, y, color){
 		this.x = x;
 		this.y = y;
@@ -491,12 +513,12 @@ var Soba = {};
 			.attr('x', x_end + 15)
 			.attr('y', 0)
 			;
-			
+
 			var bbox = textarea.node().getBBox();
 			return bbox.x + bbox.width;
 		}
 	};
-	
+
 	Soba.ContourDesicionFunction = function(x_min, x_max, y_min, y_max, decision_func, args){
 		this.x_min = x_min;
 		this.x_max = x_max;
@@ -726,14 +748,14 @@ var Soba = {};
 					}
 				}
 			}, this);
-			
+
 			if (title) {
 				var textarea = g.append('text').text(title)
 				.attr('font-size', 10)
 				.attr('x', x_end + 10)
 				.attr('y', 0)
 				;
-			
+
 				var bbox = textarea.node().getBBox();
 				return bbox.x + bbox.width;
 			} else {
@@ -741,7 +763,7 @@ var Soba = {};
 			}
 		},
 	};
-	
+
 	Soba.Label = function(title, options, orientation){
 		this.title = title;
 		this.options = options ? options : {};
@@ -758,18 +780,18 @@ var Soba = {};
 				.attr('dominant-baseline', 'text-before-edge')
 				.attr('font-size', fontsize)
 			;
-			
+
 			var bbox = label.node().getBBox();
 			var label_w = bbox.width, label_h = bbox.height;
 			var g_w = g.attr('width'), g_h = g.attr('height');
-			
+
 			var rad = this.orientation * Math.PI / 180;
 			var x = g_w/2 - label_w/2*Math.cos(rad) + label_h/2*Math.sin(rad);
 			var y = g_h/2 - label_w/2*Math.sin(rad) - label_h/2*Math.cos(rad);
 			label.attr('transform', 'translate('+x+','+y+') rotate('+this.orientation+')');
 		}
 	};
-	
+
 	Soba.Legend = function(elements, titles, location, padding, margin){
 		this.elements = elements;
 		this.titles = titles;
@@ -803,14 +825,14 @@ var Soba = {};
 				}
 			}, this);
 			var n_legends = i;
-			
+
 			var svg_w = svg.attr('width'), svg_h = svg.attr('height');
 			var max_width = widths.length > 0 ? Math.max.apply(null, widths) : 0;
 			var frame_width = max_width + 20, frame_height = 15*n_legends+10;
 			var legend_margin = 10;
 			var legend_top = (svg_h - frame_height)/2;
 			var legend_left = (svg_w - frame_width)/2;
-			
+
 			var legend_loc = this.location ? this.location : 'upper right';
 			if (legend_loc.indexOf('upper') >= 0) {
 				legend_top = this.padding.top + this.margin.top + legend_margin;
@@ -822,18 +844,18 @@ var Soba = {};
 			} else if (legend_loc.indexOf('right') >= 0) {
 				legend_left=svg_w - this.padding.right - this.margin.right - frame_width - legend_margin;
 			}
-			
+
 			base
 				.attr('transform', 'translate('+legend_left+','+legend_top+')')
 				;
-			
+
 			frame
 				.attr('width', frame_width)
 				.attr('height', frame_height)
 				;
 		}
 	};
-	
+
 	Soba.Colorbar = function(contour_obj) {
 		this.contour = contour_obj;
 		Soba.Colorbar.count++;
@@ -842,7 +864,7 @@ var Soba = {};
 	Soba.Colorbar.prototype = {
 		show: function(g) {
 			var g_w = g.attr('width'), g_h = g.attr('height');
-			
+
 			var w = g_w - 30, h = g_h - 80;
 			var x = 20, y = (g_h - h)/2;
 			var base = g.append('g')
@@ -851,11 +873,11 @@ var Soba = {};
 
 			var n_divs = 10;
 			var color = this.contour.color;
-			
+
 			var scale = d3.scale.linear()
 				.domain([0,n_divs])
 				.range([0, h]);
-			
+
 			var defs = g.append('svg:defs');
 			var id_prefix = 'cl_' + Soba.Colorbar.count + '_';
 			for (var i=0 ; i<n_divs ; i++) {
@@ -880,7 +902,7 @@ var Soba = {};
 					.attr('stop-color', color(1-((i+1)/n_divs)))
 					.attr('stop-opacity', 1)
 				;
-				
+
 				base.append('rect')
 					.attr('x', 0)
 					.attr('y', scale(i))
@@ -889,7 +911,7 @@ var Soba = {};
 					.attr('fill', 'url(#'+id+')')
 				;
 			}
-			
+
 			var domain = this.contour.domain();
 			if (domain) {
 				var axis_scale = d3.scale.linear()
@@ -898,15 +920,15 @@ var Soba = {};
 
 				this.drawAxis(base, axis_scale);
 			}
-			
+
 		},
-		
+
 		drawAxis: function(base, scale) {
 			var axis = d3.svg.axis()
 				.scale(scale)
 				.ticks(5)
 				.orient('left');
-			
+
 			base.append('g')
 				.attr('class', 'colorbar-axis')
 				.call(axis);
